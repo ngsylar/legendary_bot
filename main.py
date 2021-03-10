@@ -2,6 +2,7 @@ import discord
 import os
 import random
 from replit import db
+from keep_alive import keep_alive
 
 client = discord.Client()
 
@@ -144,4 +145,5 @@ async def on_message(message):
       await message.channel.send('I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
 
 
+keep_alive()
 client.run(os.getenv('TOKEN'))
