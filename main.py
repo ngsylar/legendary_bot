@@ -46,6 +46,8 @@ async def on_message(message):
 
   if msg.startswith('leg!new'):
     schn = msg.split('leg!new ', 1)[1]
+    if (len(schn) > 1) and (schn[1] == '#'):
+      schn = msg.split('#', 1)[1][:-1]
     update_sch(server_id, schn)
     await message.channel.send('That is awesome!')
   
