@@ -40,7 +40,7 @@ async def on_message(message):
     'to succeed you have to stop to be ordinary and be legen — wait for it — dary! Legendary!',
     'when I get sad, I stop being sad and be awesome instead.',
     'if you have a crazy story, I was there. It\'s just a law of the universe.',
-    'I believe you and I met for a reason. It\'s like the universe was saying, \"Hey Barney, there\'s this dude, he\'s pretty cool, but it is your job to make him awesome',
+    'I believe you and I met for a reason. It\'s like the universe was saying, \"Hey Legendary, there\'s this dude, he\'s pretty cool, but it is your job to make him awesome\".',
     'without me, it’s just aweso.'
   ]
   sorry = 'I\'m sorry, I can\'t hear you over the sound of how awesome I am.'
