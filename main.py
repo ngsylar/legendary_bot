@@ -1,5 +1,6 @@
 import discord
 import os
+import random
 from replit import db
 
 client = discord.Client()
@@ -62,10 +63,61 @@ async def on_message(message):
 
   # usar canal secreto
 
-  if 'testando' in msg:
+  if 'sd' in msg:
     if server_id in db.keys():
+      dices = []
+      raw1 = msg.casefold().split('sd', 1)
+      try:
+        if int(raw1[0]) > 0:
+          raw2 = raw1[1].split('+', 1)
+          scope = int(raw1[0])
+          multi = 0
+
+          for i in range(scope):
+            value = random.randint(1, int(raw2[0]))
+            if len(raw2) > 1:
+              if raw2[1][-1].casefold() == 'e':
+                multi = 1
+                raw2[1] = raw2[1][:-1]
+              dicesum = int(raw2[1])
+              dices.append([value, dicesum])
+            else:
+              dices.append([value])
+
+        if len(raw2) > 1:
+          if multi:
+            values = []
+            valsum = 0
+            for dice in dices:
+              value = dice[0] + dicesum
+              values.append(value)
+              valsum = valsum + value
+            sendmsg = str(valsum)+' \u2190 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])+' + '+str(dicesum)+' each'
+
+          else:
+            values = []
+            valsum = 0
+            for dice in dices:
+              values.append(dice[0])
+              valsum = valsum + dice[0]
+            valsum = valsum + dicesum
+            sendmsg = str(valsum)+' \u2190 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])+' + '+str(dicesum)
+        
+        else:
+          values = []
+          valsum = 0
+          for dice in dices:
+            values.append(dice[0])
+            valsum = valsum + dice[0]
+          sendmsg = str(valsum)+' \u2190 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])
+      
+      except ValueError:
+        return
+
       sch = client.get_channel(int(db[server_id]))
-      await sch.send('<@'+str(message.author.id)+'>,\nsucesso!')
+      await sch.send('<@'+str(message.author.id)+'>,\n'+sendmsg)
+    else:
+      await message.channel.send('I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
 
 
 client.run(os.getenv('TOKEN'))
