@@ -33,10 +33,24 @@ async def on_message(message):
 
   msg = message.content
   awesome = ['that is awesome!', 'challenge accepted!']
-  legendary = ['believe it or not, you were not always as awesome as you are today.', 'you poor thing. Having to grow up in the Insula, with the Palace right there.', 'sometimes we search for one thing but discover another.']
+  legendary = [
+    'believe it or not, I was not always as awesome as I am today.',
+    'you poor thing. Having to grow up in the Insula, with the Palace right there.',
+    'sometimes we search for one thing but discover another.',
+    'to succeed you have to stop to be ordinary and be legen — wait for it — dary! Legendary!',
+    'when I get sad, I stop being sad and be awesome instead.',
+    'if you have a crazy story, I was there. It\'s just a law of the universe.',
+    'I believe you and I met for a reason. It\'s like the universe was saying, \"Hey Barney, there\'s this dude, he\'s pretty cool, but it is your job to make him awesome',
+    'without me, it’s just aweso.'
+  ]
+  sorry = 'I\'m sorry, I can\'t hear you over the sound of how awesome I am.'
 
   if str(client.user.id) in msg:
     await message.channel.send('Think of me as Yoda, only instead of being little and green, I wear suits and I\'m awesome. I\'m your bro: I\'m Broda!')
+  
+  if msg.startswith('legen!dary'):
+    option = random.randint(0, 7)
+    await message.channel.send('<@'+str(message.author.id)+'>, '+legendary[option])
 
 
   # definir de canal secreto
@@ -51,7 +65,7 @@ async def on_message(message):
       update_sch(server_id, schn)
       await message.channel.send('That is awesome!')
     else:
-      await message.channel.send('<@'+str(message.author.id)+'>, I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
+      await message.channel.send('<@'+str(message.author.id)+'>, '+sorry)
   
   if msg.startswith('legen!del'):
     if message.author.guild_permissions.administrator:
@@ -59,7 +73,7 @@ async def on_message(message):
         delete_sch(server_id)
         await message.channel.send('Challenge accepted!')
     else:
-      await message.channel.send('<@'+str(message.author.id)+'>, I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
+      await message.channel.send('<@'+str(message.author.id)+'>, '+sorry)
   
   if msg.startswith('legen!list'):
     if message.author.guild_permissions.administrator:
@@ -68,11 +82,7 @@ async def on_message(message):
       else:
         await message.channel.send('Sometimes we search for one thing but discover another.')
     else:
-      await message.channel.send('<@'+str(message.author.id)+'>, I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
-  
-  if msg.startswith('legen!dary'):
-    option = random.randint(0, 2)
-    await message.channel.send('<@'+str(message.author.id)+'>, '+legendary[option])
+      await message.channel.send('<@'+str(message.author.id)+'>, '+sorry)
 
 
   # usar canal secreto
@@ -138,7 +148,7 @@ async def on_message(message):
       await message.channel.send('<@'+str(message.author.id)+'>, '+awesome[option])
       await sch.send('<@'+str(message.author.id)+'>,\n'+sendmsg)
     else:
-      await message.channel.send('I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
+      await message.channel.send(sorry)
 
 
 keep_alive()
