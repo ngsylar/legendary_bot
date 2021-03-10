@@ -94,7 +94,7 @@ async def on_message(message):
               value = dice[0] + dicesum
               values.append(value)
               valsum = valsum + value
-            sendmsg = str(valsum)+' \u2190 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])+' + '+str(dicesum)+' each'
+            sendmsg = '` '+str(valsum)+' `'+' \u27F5 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])+' + '+str(dicesum)+' each'
 
           else:
             values = []
@@ -103,7 +103,7 @@ async def on_message(message):
               values.append(dice[0])
               valsum = valsum + dice[0]
             valsum = valsum + dicesum
-            sendmsg = str(valsum)+' \u2190 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])+' + '+str(dicesum)
+            sendmsg = '` '+str(valsum)+' `'+' \u27F5 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])+' + '+str(dicesum)
         
         else:
           values = []
@@ -111,12 +111,13 @@ async def on_message(message):
           for dice in dices:
             values.append(dice[0])
             valsum = valsum + dice[0]
-          sendmsg = str(valsum)+' \u2190 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])
+          sendmsg = '` '+str(valsum)+' `'+' \u27F5 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])
       
       except ValueError:
         return
 
       sch = client.get_channel(int(db[server_id]))
+      await message.channel.send('Challenge accepted!')
       await sch.send('<@'+str(message.author.id)+'>,\n'+sendmsg)
     else:
       await message.channel.send('I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
