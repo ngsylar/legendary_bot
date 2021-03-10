@@ -32,6 +32,8 @@ async def on_message(message):
 
   msg = message.content
   challenge = ['challenge', 'desafio']
+  awesome = ['That is awesome!', 'Challenge accepted!']
+  legendary = ['Believe it or not, you were not always as awesome as you are today.', 'You poor thing. Having to grow up in the Insula, with the Palace right there.', 'Sometimes we search for one thing but discover another.']
 
   if str(client.user.id) in msg:
     await message.channel.send('Think of me as Yoda, only instead of being little and green, I wear suits and I\'m awesome. I\'m your bro: I\'m Broda!')
@@ -44,28 +46,42 @@ async def on_message(message):
   
   server_id = str(message.guild.id)
 
-  if msg.startswith('leg!new'):
-    schn = msg.split('leg!new ', 1)[1]
-    if (len(schn) > 1) and (schn[1] == '#'):
-      schn = msg.split('#', 1)[1][:-1]
-    update_sch(server_id, schn)
-    await message.channel.send('That is awesome!')
-  
-  if msg.startswith('leg!del'):
-    if server_id in db.keys():
-      delete_sch(server_id)
+  if msg.startswith('legen!new'):
+    if message.author.guild_permissions.administrator:
+      schn = msg.split('legen!new ', 1)[1]
+      if (len(schn) > 1) and (schn[1] == '#'):
+        schn = msg.split('#', 1)[1][:-1]
+      update_sch(server_id, schn)
+      await message.channel.send('That is awesome!')
+    else:
       await message.channel.send('I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
   
-  if msg.startswith('leg!list'):
-    if server_id in db.keys():
-      await message.channel.send(db[server_id])
+  if msg.startswith('legen!del'):
+    if message.author.guild_permissions.administrator:
+      if server_id in db.keys():
+        delete_sch(server_id)
+        await message.channel.send('Challenge accepted!')
     else:
-      await message.channel.send('Sometimes we search for one thing but discover another.')
+      await message.channel.send('I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
   
+  if msg.startswith('legen!list'):
+    if message.author.guild_permissions.administrator:
+      if server_id in db.keys():
+        await message.channel.send(db[server_id])
+      else:
+        await message.channel.send('Sometimes we search for one thing but discover another.')
+    else:
+      await message.channel.send('I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
+  
+  if msg.startswith('legen!dary'):
+    option = random.randint(0, 2)
+    await message.channel.send(legendary[option])
+
 
   # usar canal secreto
 
   if 'sd' in msg:
+    # se existe canal secreto
     if server_id in db.keys():
       dices = []
       raw1 = msg.casefold().split('sd', 1)
@@ -75,6 +91,7 @@ async def on_message(message):
           scope = int(raw1[0])
           multi = 0
 
+          # lancar dados
           for i in range(scope):
             value = random.randint(1, int(raw2[0]))
             if len(raw2) > 1:
@@ -87,6 +104,7 @@ async def on_message(message):
               dices.append([value])
 
         if len(raw2) > 1:
+          # dados somados
           if multi:
             values = []
             valsum = 0
@@ -96,6 +114,7 @@ async def on_message(message):
               valsum = valsum + value
             sendmsg = '` '+str(valsum)+' `'+' \u27F5 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])+' + '+str(dicesum)+' each'
 
+          # dados normais com soma final
           else:
             values = []
             valsum = 0
@@ -105,6 +124,7 @@ async def on_message(message):
             valsum = valsum + dicesum
             sendmsg = '` '+str(valsum)+' `'+' \u27F5 '+str(values)+' '+str(raw1[0])+'d'+str(raw2[0])+' + '+str(dicesum)
         
+        # dados normais
         else:
           values = []
           valsum = 0
@@ -117,7 +137,8 @@ async def on_message(message):
         return
 
       sch = client.get_channel(int(db[server_id]))
-      await message.channel.send('Challenge accepted!')
+      option = random.randint(0, 1)
+      await message.channel.send(awesome[option])
       await sch.send('<@'+str(message.author.id)+'>,\n'+sendmsg)
     else:
       await message.channel.send('I\'m sorry, I can\'t hear you over the sound of how awesome I am.')
