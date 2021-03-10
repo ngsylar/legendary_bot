@@ -110,8 +110,8 @@ async def on_message(message):
             else:
               dices.append([value])
 
+        # dados somados
         if len(raw2) > 1:
-          # dados somados
           if multi:
             values = []
             valsum = 0
