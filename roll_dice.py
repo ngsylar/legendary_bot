@@ -43,7 +43,12 @@ def roll_dice(msg):
 
   # transcrever dados (guardar valores)
   for dice in dices:
-    value = dice + dicesum
+    if multi:
+      # soma em cada dado (ataque)
+      value = dice + dicesum
+    else:
+      # soma final (dano) ou sem soma
+      value = dice
     values.append(value)
     valsum += value
     dice_i += 1
@@ -88,8 +93,8 @@ def roll_dice(msg):
     sum_desc = sum_desc+'\n\u0060 '+str(dmin[1])+' \u0060 \u27F5 '+dmin_type[dmin[0]]+' ('+str(dmin[2:])[1:-1]+')d\n\u0060 '+str(dmax[1])+' \u0060 \u27F5 '+dmax_type[dmax[0]]+' ('+str(dmax[2:])[1:-1]+')d'
   else:
     if dmin[0]:
-      sum_desc = '\n'+dmin_type[dmin[0]]
+      sum_desc = sum_desc+'\n'+dmin_type[dmin[0]]
     elif dmax[0]:
-      sum_desc = '\n'+dmax_type[dmax[0]]
+      sum_desc = sum_desc+'\n'+dmax_type[dmax[0]]
   sendmsg = '\u0060 '+str(valsum)+' \u0060'+' \u27F5 '+str(values)+' '+d_name+sum_desc
   return sendmsg
