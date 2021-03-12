@@ -8,7 +8,7 @@ def roll_dice(msg):
   dicesum = 0
 
   # interpretar dados (numero de dados)
-  raw1 = msg.casefold().split('sd', 1)
+  raw1 = msg.split('d', 1)
   amount = int(raw1[0])
   if (amount < 1) or (amount > 100):
     raise ValueError
@@ -33,22 +33,22 @@ def roll_dice(msg):
     value = random.randint(1, dicelen)
     dices.append(value)
 
-  # transcrever dados
+  # transcrever dados (valores iniciais)
   values = []
   valsum = 0
   d_name = raw1[0]+'d'+raw2[0]
   dmin = [0, 999999, 0]
   dmax = [0, -999999, 0]
   dice_i = 0
-  for dice in dices:
 
-    # guardar valores
+  # transcrever dados (guardar valores)
+  for dice in dices:
     value = dice + dicesum
     values.append(value)
     valsum += value
+    dice_i += 1
 
     # verificar menor valor alcancado
-    dice_i += 1
     if value < dmin[1]:
       dmin = dmin[:2]
       dmin[1] = value

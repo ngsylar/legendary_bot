@@ -1,5 +1,6 @@
 import discord
 import os
+import re
 from roll_dice import random, roll_dice
 from guild_db import db, Gdb
 from keep_alive import keep_alive
@@ -64,10 +65,11 @@ async def on_message(message):
   # ---------------------------------------------------
   # usar canal secreto
 
-  if 'sd' in msg:
-    if server_id in db.keys():
+  if re.match('\d+[Ss]?[Dd]\d+', msg):
+    if re.match('\d+[Ss]', msg) and (server_id in db.keys()):
       try:
-        sendmsg = roll_dice(msg)
+        dice = msg.lower().replace('sd','d')
+        sendmsg = roll_dice(dice)
         sch = client.get_channel(int(db[server_id]))
         option = random.randint(0, 1)
         await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.awesome[option])
@@ -75,7 +77,11 @@ async def on_message(message):
       except ValueError:
         return
     else:
-      await message.channel.send(Gdb.sorry)
+      try:
+        sendmsg = roll_dice(msg.lower())
+        await message.channel.send('<@'+str(message.author.id)+'>,\n'+sendmsg)
+      except ValueError:
+        return
 
   # ---------------------------------------------------
 
