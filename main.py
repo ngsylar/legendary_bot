@@ -35,7 +35,7 @@ async def on_message(message):
   server_id = str(message.guild.id)
 
   if msg.startswith('legen!new'):
-    if message.author.guild_permissions.administrator:
+    if message.author.guild_permissions.manage_channels:
       schn = msg.split('legen!new ', 1)[1]
       if (len(schn) > 1) and (schn[1] == '#'):
         schn = msg.split('#', 1)[1][:-1]
@@ -45,21 +45,25 @@ async def on_message(message):
       await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.sorry)
   
   if msg.startswith('legen!del'):
-    if message.author.guild_permissions.administrator:
+    if message.author.guild_permissions.manage_channels:
       if server_id in db.keys():
         Gdb.delete_sch(server_id)
         await message.channel.send(Gdb.whoami[2])
     else:
       await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.sorry)
   
-#   if msg.startswith('legen!list'):
-#     if message.author.guild_permissions.administrator:
-#       if server_id in db.keys():
-#         await message.channel.send(db[server_id])
-#       else:
-#         await message.channel.send(Gdb.whoami[3])
-#     else:
-#       await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.sorry)
+  if msg.startswith('play!book'):
+    if message.author.guild_permissions.manage_channels:
+      if server_id in db.keys():
+        await message.channel.send('<#'+db[server_id]+'> \u27F5 The Secret Channel')
+#         user_roles = []
+#         for role in message.author.roles:
+#           user_roles.append(role.name)
+#         await message.channel.send(user_roles)
+      else:
+        await message.channel.send(Gdb.whoami[3])
+    else:
+      await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.sorry)
 
 
   # ---------------------------------------------------
