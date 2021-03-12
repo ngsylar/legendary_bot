@@ -28,18 +28,12 @@ def roll_dice(msg):
   values = []
   valsum = 0
   d_name = raw1[0]+'d'+raw2[0]
-  dmin = [0, 201]
-  dmax = [0, 0]
+  dmin = ['Lowest', 999999, 0]
+  dmax = ['Highest', -999999, 0]
+  dice_i = 0
   for dice in dices:
 
-    # verificar valor min e maximo
-    if dice < dmin[1]:
-      dmin = [dices.index(dice), dice]
-    elif dice > dmax[1]:
-      dmax = [dices.index(dice), dice]
-    #'\u00B0'
-
-    # diferenciar dados (parte 1)
+    # guardar valores
     if (len(raw2) > 1) and multi:
       # soma em cada dado (ataque)
       value = dice + dicesum
@@ -50,7 +44,27 @@ def roll_dice(msg):
       values.append(value)
     valsum = valsum + value
 
-  # diferenciar dados (parte 2)
+    # verificar valor min e maximo
+    dice_i += 1
+    if scope > 1:
+      if value < dmin[1]:
+        dmin = dmin[:2]
+        dmin[1] = value
+        dmin.append(dice_i)
+        if dice == 1:
+          dmin[0] = '**Critical Failure**'
+      elif value == dmin[1]:
+        dmin.append(dice_i)
+      if value > dmax[1]:
+        dmax = dmax[:2]
+        dmax[1] = value
+        dmax.append(dice_i)
+        if dice == dicelen:
+          dmax[0] = '**Critical Strike**'
+      elif value == dmax[1]:
+        dmax.append(dice_i)
+
+  # diferenciar dados
   if len(raw2) > 1:
     # soma em cada dado (ataque)
     if multi:
@@ -64,5 +78,7 @@ def roll_dice(msg):
     sum_desc = ''
 
   # mostrar resultado
-  sendmsg = '` '+str(valsum)+' `'+' \u27F5 '+str(values)+' '+d_name+sum_desc    
+  if scope > 1:
+    sum_desc = sum_desc+'\n\u0060 '+str(dmin[1])+' \u0060 \u27F5 '+dmin[0]+' ('+str(dmin[2:])[1:-1]+')d\n\u0060 '+str(dmax[1])+' \u0060 \u27F5 '+dmax[0]+' ('+str(dmax[2:])[1:-1]+')d'
+  sendmsg = '\u0060 '+str(valsum)+' \u0060'+' \u27F5 '+str(values)+' '+d_name+sum_desc
   return sendmsg
