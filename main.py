@@ -51,14 +51,14 @@ async def on_message(message):
     else:
       await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.sorry)
   
-  if msg.startswith('legen!list'):
-    if message.author.guild_permissions.administrator:
-      if server_id in db.keys():
-        await message.channel.send(db[server_id])
-      else:
-        await message.channel.send(Gdb.whoami[3])
-    else:
-      await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.sorry)
+#   if msg.startswith('legen!list'):
+#     if message.author.guild_permissions.administrator:
+#       if server_id in db.keys():
+#         await message.channel.send(db[server_id])
+#       else:
+#         await message.channel.send(Gdb.whoami[3])
+#     else:
+#       await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.sorry)
 
 
   # ---------------------------------------------------
