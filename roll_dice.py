@@ -96,5 +96,5 @@ def roll_dice(msg):
       sum_desc = sum_desc+'\n'+dmin_type[dmin[0]]
     elif dmax[0]:
       sum_desc = sum_desc+'\n'+dmax_type[dmax[0]]
-  sendmsg = '\u0060 '+str(valsum)+' \u0060'+' \u27F5 '+str(values)+' '+d_name+sum_desc
+  sendmsg = '\u0060 '+str(valsum)+' \u0060'+' \u27F5 '+str(values)+'  '+d_name+sum_desc
   return sendmsg
