@@ -79,7 +79,8 @@ async def on_message(message):
     else:
       try:
         sendmsg = roll_dice(msg.lower())
-        await message.channel.send('<@'+str(message.author.id)+'>,\n'+sendmsg)
+        option = random.randint(0, 1)
+        await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.awesome[option]+'\n'+sendmsg)
       except ValueError:
         return
 
