@@ -8,7 +8,7 @@ def roll_dice(msg):
   scope = int(raw1[0])
   if (scope < 1) or (scope > 100):
     raise ValueError
-  raw2 = raw1[1].split('+', 1)
+  raw2 = raw1[1].replace('-','+-').split('+',1)
   dicelen = int(raw2[0])
   if (dicelen < 2) or (dicelen > 200):
     raise ValueError
@@ -21,15 +21,18 @@ def roll_dice(msg):
       if raw2[1][-1].casefold() == 'e':
         multi = 1
         raw2[1] = raw2[1][:-1]
-      dicesum = int(raw2[1])
+      dicesum = 0
+      d_sums = raw2[1].split('+')
+      for d_sum in d_sums:
+        dicesum += int(d_sum)
     dices.append(value)
 
   # transcrever dados
   values = []
   valsum = 0
   d_name = raw1[0]+'d'+raw2[0]
-  dmin = ['Lowest', 999999, 0]
-  dmax = ['Highest', -999999, 0]
+  dmin = [0, 999999, 0]
+  dmax = [0, -999999, 0]
   dice_i = 0
   for dice in dices:
 
@@ -42,27 +45,26 @@ def roll_dice(msg):
       # soma final (dano) ou sem soma
       value = dice
       values.append(value)
-    valsum = valsum + value
+    valsum += value
 
     # verificar valor min e maximo
     dice_i += 1
-    if scope > 1:
-      if value < dmin[1]:
-        dmin = dmin[:2]
-        dmin[1] = value
-        dmin.append(dice_i)
-        if dice == 1:
-          dmin[0] = '**Critical Failure**'
-      elif value == dmin[1]:
-        dmin.append(dice_i)
-      if value > dmax[1]:
-        dmax = dmax[:2]
-        dmax[1] = value
-        dmax.append(dice_i)
-        if dice == dicelen:
-          dmax[0] = '**Critical Strike**'
-      elif value == dmax[1]:
-        dmax.append(dice_i)
+    if value < dmin[1]:
+      dmin = dmin[:2]
+      dmin[1] = value
+      dmin.append(dice_i)
+      if dice == 1:
+        dmin[0] = 1
+    elif value == dmin[1]:
+      dmin.append(dice_i)
+    if value > dmax[1]:
+      dmax = dmax[:2]
+      dmax[1] = value
+      dmax.append(dice_i)
+      if dice == dicelen:
+        dmax[0] = 1
+    elif value == dmax[1]:
+      dmax.append(dice_i)
 
   # diferenciar dados
   if len(raw2) > 1:
@@ -72,13 +74,15 @@ def roll_dice(msg):
     # soma final (dano)
     else:
       sum_desc = ' + '+str(dicesum)
-      valsum = valsum + dicesum
+      valsum += dicesum
   # sem soma
   else:
     sum_desc = ''
 
   # mostrar resultado
+  dmin_type = ['Lowest', '**Critical Failure**']
+  dmax_type = ['Highest', '**Critical Strike**']
   if scope > 1:
-    sum_desc = sum_desc+'\n\u0060 '+str(dmin[1])+' \u0060 \u27F5 '+dmin[0]+' ('+str(dmin[2:])[1:-1]+')d\n\u0060 '+str(dmax[1])+' \u0060 \u27F5 '+dmax[0]+' ('+str(dmax[2:])[1:-1]+')d'
+    sum_desc = sum_desc+'\n\u0060 '+str(dmin[1])+' \u0060 \u27F5 '+dmin_type[dmin[0]]+' ('+str(dmin[2:])[1:-1]+')d\n\u0060 '+str(dmax[1])+' \u0060 \u27F5 '+dmax_type[dmax[0]]+' ('+str(dmax[2:])[1:-1]+')d'
   sendmsg = '\u0060 '+str(valsum)+' \u0060'+' \u27F5 '+str(values)+' '+d_name+sum_desc
   return sendmsg
