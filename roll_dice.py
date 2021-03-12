@@ -75,12 +75,16 @@ def roll_dice(msg):
 
   # diferenciar dados
   if len(raw2) > 1:
+    if dicesum < 0:
+      operand = ' \u2013 '+str(dicesum*(-1))
+    else:
+      operand = ' + '+str(dicesum)
     # soma em cada dado (ataque)
     if multi:
-      sum_desc = ' + '+str(dicesum)+' each'
+      sum_desc = operand+' each'
     # soma final (dano)
     else:
-      sum_desc = ' + '+str(dicesum)
+      sum_desc = operand
       valsum += dicesum
   # sem soma
   else:
