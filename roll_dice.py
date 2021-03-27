@@ -29,7 +29,7 @@ def roll_dice(msg):
       dicesum += int(d_sum)
 
   # lancar dados
-  for i in range(amount):
+  for _ in range(amount):
     value = random.randint(1, dicelen)
     dices.append(value)
 

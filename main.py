@@ -69,8 +69,8 @@ async def on_message(message):
   # ---------------------------------------------------
   # usar canal secreto
 
-  if re.match('\d+[Ss]?[Dd]\d+', msg):
-    if re.match('\d+[Ss]', msg) and (server_id in db.keys()):
+  if re.match('[0-9]+[Ss]?[Dd][0-9]+', msg):
+    if re.match('[0-9]+[Ss]', msg) and (server_id in db.keys()):
       try:
         dice = msg.lower().replace('sd','d')
         sendmsg = roll_dice(dice)
