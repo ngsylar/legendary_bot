@@ -1,110 +1,135 @@
+from collections import namedtuple
 import random
 
-def roll_dice(msg):
+class Dice:
+  def __init__(self):
+    self.__compute_ith_result = namedtuple('ithDiceResult', ['simple', 'compound'])
 
-  # interpretar dados (valores iniciais)
-  dices = []
-  multi = 0
-  dicesum = 0
+  # rolar dados
+  def roll(self, msg):
+    self.__decode_msg(msg)
 
-  # interpretar dados (numero de dados)
-  raw1 = msg.split('d', 1)
-  amount = int(raw1[0])
-  if (amount < 1) or (amount > 100):
-    raise ValueError
+    # faz o lancamento dos dados
+    self.results = []
+    for _ in range(self.amount):
+      diceiResult = random.randint(1, self.faces)
+      self.results.append(self.__compute_ith_result(
+        simple = diceiResult,
+        compound = diceiResult + self.sumTerm))
+    
+    # calcula a soma final dos dados lancados
+    self.finalResult = 0
+    if self.hasSum:
+      if self.sumOverEach:
+        for value in self.results:
+          self.finalResult += value.compound
+      else:
+        for value in self.results:
+          self.finalResult += value.simple
+        self.finalResult += self.sumTerm
 
-  # interpretar dados (valor maximo do dado)
-  raw2 = raw1[1].replace('-','+-').split('+',1)
-  dicelen = int(raw2[0])
-  if (dicelen < 2) or (dicelen > 200):
-    raise ValueError
+    # analisa e mostra resultados
+    self.__find_extreme_vals()
+    return self.__show_results()
+  
+  # interpreta mensagem inserida pelo usuario
+  def __decode_msg(self, msg):
+    # particiona mensagem
+    self.raw = msg.split('d', 1)
+    self.raw.extend(self.raw.pop().replace('-','+-').split('+',1))
+    
+    # atribui caracteristicas ao lancamento
+    self.amount = int(self.raw[0])
+    self.faces = int(self.raw[1])
+    self.__validate_roll()
+    self.hasSum = len(self.raw) > 2
+    self.sumOverEach = (self.raw[2][-1].casefold() == 'e')
 
-  # interpretar dados (somas)
-  if len(raw2) > 1:
-    if raw2[1][-1].casefold() == 'e':
-      multi = 1
-      raw2[1] = raw2[1][:-1]
-    d_sums = raw2[1].split('+')
-    for d_sum in d_sums:
-      dicesum += int(d_sum)
+    # define valor da soma
+    self.sumTerm = 0
+    if self.hasSum:
+      if self.sumOverEach:
+        self.raw[2] = self.raw[2][:-1]
+      sumFactors = self.raw[2].split('+')
+      for sumFactor in sumFactors:
+        self.sumTerm += int(sumFactor)
 
-  # lancar dados
-  for _ in range(amount):
-    value = random.randint(1, dicelen)
-    dices.append(value)
+  # testa limites de lancamento
+  def __validate_roll(self):
+    if (self.amount < 1) or (self.amount > 100) or (self.faces < 2) or (self.faces > 200):
+      raise ValueError
+  
+  # achar valores maximo e minimo da rolagem
+  def __find_extreme_vals(self):
+    self.highestResultIds = [0]
+    self.lowestResultIds = [0]
+    highestResult = -999999
+    lowestResult = 999999
 
-  # transcrever dados (valores iniciais)
-  values = []
-  valsum = 0
-  d_name = raw1[0]+'d'+raw2[0]
-  dmin = [0, 999999, 0]
-  dmax = [0, -999999, 0]
-  dice_i = 0
+    for i, diceResult in enumerate(self.results):
+      # define maior valor
+      if diceResult.simple > highestResult:
+        highestResult = diceResult.simple
+        self.highestResultIds = [i]
+      elif diceResult.simple == highestResult:
+        self.highestResultIds.append(i)
+      
+      # define menor valor
+      if diceResult.simple < lowestResult:
+        lowestResult = diceResult.simple
+        self.lowestResultIds = [i]
+      elif diceResult.simple == lowestResult:
+        self.lowestResultIds.append(i)
+  
+  # mostra o resultado da rolagem
+  def __show_results(self):
+    arrowSign = ' \u27F5 '
+    negSign = ' \u2013 '
+    posSign = ' + '
 
-  # transcrever dados (guardar valores)
-  for dice in dices:
-    if multi:
-      # soma em cada dado (ataque)
-      value = dice + dicesum
+    # define o nome do dado:
+    nameSufix = ''
+    if self.hasSum and self.sumOverEach:
+      nameSufix = ' each'
+    if self.sumTerm < 0:
+      sumDesc = negSign + str(self.sumTerm*(-1)) + nameSufix
+    elif self.sumTerm > 0:
+      sumDesc = posSign + str(self.sumTerm) + nameSufix
+    self.name = str(self.amount)+'d'+str(self.faces) + sumDesc
+
+    # define descricao dos valores maximo e minimo
+    highestResultDescs = {False: 'Highest', True: '**Critical Strike**'}
+    lowestResultDescs = {False: 'Lowest', True: '**Critical Failure**'}
+    highestResult = self.results[self.highestResultIds[0]].simple
+    lowestResult = self.results[self.lowestResultIds[0]].simple
+    resultIsCS = highestResult == self.faces
+    resultIsCF = lowestResult == 1
+    hiResDesc = highestResultDescs[resultIsCS]
+    loResDesc = lowestResultDescs[resultIsCF]
+    
+    # define descricao da rolagem
+    rollDesc = ''
+    if self.amount == 1:
+      if resultIsCS:
+        rollDesc = hiResDesc
+      elif resultIsCF:
+        rollDesc = loResDesc
+    elif highestResult == lowestResult:
+      if resultIsCS:
+        rollDesc = '\u0060 '+str(highestResult)+' \u0060' + arrowSign + hiResDesc+' ('+str(self.highestResultIds)[1:-1]+')d'
+      elif resultIsCF:
+        rollDesc = '\u0060 '+str(lowestResult)+' \u0060'+ arrowSign + loResDesc+' ('+str(self.lowestResultIds)[1:-1]+')d'
     else:
-      # soma final (dano) ou sem soma
-      value = dice
-    values.append(value)
-    valsum += value
-    dice_i += 1
-
-    # verificar menor valor alcancado
-    if value < dmin[1]:
-      dmin = dmin[:2]
-      dmin[1] = value
-      dmin.append(dice_i)
-      if dice == 1:
-        dmin[0] = 1
-    elif value == dmin[1]:
-      dmin.append(dice_i)
-
-    # verificar maior valor alcancado
-    if value > dmax[1]:
-      dmax = dmax[:2]
-      dmax[1] = value
-      dmax.append(dice_i)
-      if dice == dicelen:
-        dmax[0] = 1
-    elif value == dmax[1]:
-      dmax.append(dice_i)
-
-  # diferenciar dados
-  if len(raw2) > 1:
-    if dicesum < 0:
-      operand = ' \u2013 '+str(dicesum*(-1))
+      rollDesc = '\u0060 '+str(highestResult)+' \u0060'+ arrowSign + hiResDesc+' ('+str(self.highestResultIds)[1:-1]+')d\n\u0060 '+str(lowestResult)+' \u0060'+ arrowSign + loResDesc+' ('+str(self.lowestResultIds)[1:-1]+')d'
+    
+    # retorna resultados da rolagem
+    diceResults = []
+    if self.hasSum and self.sumOverEach:
+      for diceResult in self.results:
+        diceResults.append(diceResult.compound)
     else:
-      operand = ' + '+str(dicesum)
-    # soma em cada dado (ataque)
-    if multi:
-      sum_desc = operand+' each'
-    # soma final (dano)
-    else:
-      sum_desc = operand
-      valsum += dicesum
-  # sem soma
-  else:
-    sum_desc = ''
+      for diceResult in self.results:
+        diceResults.append(diceResult.simple)
+    resultMsg = '\u0060 '+str(self.finalResult)+' \u0060'+ arrowSign + str(diceResults) + ' '+self.name +'\n'+ rollDesc
 
-  # mostrar resultado
-  dmin_type = ['Lowest', '**Critical Failure**']
-  dmax_type = ['Highest', '**Critical Strike**']
-  if dmin[1] == dmax[1]:
-    if amount > 1:
-      if dmin[0]:
-        sum_desc = sum_desc+'\n\u0060 '+str(dmin[1])+' \u0060 \u27F5 '+dmin_type[dmin[0]]+' ('+str(dmin[2:])[1:-1]+')d'
-      elif dmax[0]:
-        sum_desc = sum_desc+'\n\u0060 '+str(dmax[1])+' \u0060 \u27F5 '+dmax_type[dmax[0]]+' ('+str(dmax[2:])[1:-1]+')d'
-    else:
-      if dmin[0]:
-        sum_desc = sum_desc+'\n'+dmin_type[dmin[0]]
-      elif dmax[0]:
-        sum_desc = sum_desc+'\n'+dmax_type[dmax[0]]
-  else:
-    sum_desc = sum_desc+'\n\u0060 '+str(dmax[1])+' \u0060 \u27F5 '+dmax_type[dmax[0]]+' ('+str(dmax[2:])[1:-1]+')d\n\u0060 '+str(dmin[1])+' \u0060 \u27F5 '+dmin_type[dmin[0]]+' ('+str(dmin[2:])[1:-1]+')d'
-  sendmsg = '\u0060 '+str(valsum)+' \u0060'+' \u27F5 '+str(values)+'  '+d_name+sum_desc
-  return sendmsg
+    return resultMsg
