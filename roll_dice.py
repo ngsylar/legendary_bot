@@ -19,14 +19,13 @@ class Dice:
     
     # calcula a soma final dos dados lancados
     self.finalResult = 0
-    if self.hasSum:
-      if self.sumOverEach:
-        for value in self.results:
-          self.finalResult += value.compound
-      else:
-        for value in self.results:
-          self.finalResult += value.simple
-        self.finalResult += self.sumTerm
+    if self.hasSum and self.sumOverEach:
+      for value in self.results:
+        self.finalResult += value.compound
+    else:
+      for value in self.results:
+        self.finalResult += value.simple
+      self.finalResult += self.sumTerm
 
     # analisa e mostra resultados
     self.__find_extreme_vals()
@@ -43,7 +42,8 @@ class Dice:
     self.faces = int(self.raw[1])
     self.__validate_roll()
     self.hasSum = len(self.raw) > 2
-    self.sumOverEach = (self.raw[2][-1].casefold() == 'e')
+    if self.hasSum:
+      self.sumOverEach = (self.raw[2][-1].casefold() == 'e')
 
     # define valor da soma
     self.sumTerm = 0
@@ -88,48 +88,57 @@ class Dice:
     posSign = ' + '
 
     # define o nome do dado:
-    nameSufix = ''
+    sumDesc = ''
+    diceNameSufix = ''
     if self.hasSum and self.sumOverEach:
-      nameSufix = ' each'
+      diceNameSufix = ' each'
     if self.sumTerm < 0:
-      sumDesc = negSign + str(self.sumTerm*(-1)) + nameSufix
+      sumDesc = negSign + str(self.sumTerm*(-1)) + diceNameSufix
     elif self.sumTerm > 0:
-      sumDesc = posSign + str(self.sumTerm) + nameSufix
+      sumDesc = posSign + str(self.sumTerm) + diceNameSufix
     self.name = str(self.amount)+'d'+str(self.faces) + sumDesc
 
-    # define descricao dos valores maximo e minimo
+    # define a estrutura da descricao dos valores maximo e minimo
     highestResultDescs = {False: 'Highest', True: '**Critical Strike**'}
     lowestResultDescs = {False: 'Lowest', True: '**Critical Failure**'}
-    highestResult = self.results[self.highestResultIds[0]].simple
-    lowestResult = self.results[self.lowestResultIds[0]].simple
-    resultIsCS = highestResult == self.faces
-    resultIsCF = lowestResult == 1
-    hiResDesc = highestResultDescs[resultIsCS]
-    loResDesc = lowestResultDescs[resultIsCF]
+    highestResult = self.results[self.highestResultIds[0]]
+    lowestResult = self.results[self.lowestResultIds[0]]
+    hasCriticalStrike = (highestResult.simple == self.faces)
+    hasCriticalFailure = (lowestResult.simple == 1)
+    hiResDesc = highestResultDescs[hasCriticalStrike]
+    loResDesc = lowestResultDescs[hasCriticalFailure]
+    hiResIds = ' ('+str([i+1 for i in self.highestResultIds])[1:-1]+')d'
+    loResIds = ' ('+str([i+1 for i in self.lowestResultIds])[1:-1]+')d'
     
-    # define descricao da rolagem
-    rollDesc = ''
-    if self.amount == 1:
-      if resultIsCS:
-        rollDesc = hiResDesc
-      elif resultIsCF:
-        rollDesc = loResDesc
-    elif highestResult == lowestResult:
-      if resultIsCS:
-        rollDesc = '\u0060 '+str(highestResult)+' \u0060' + arrowSign + hiResDesc+' ('+str(self.highestResultIds)[1:-1]+')d'
-      elif resultIsCF:
-        rollDesc = '\u0060 '+str(lowestResult)+' \u0060'+ arrowSign + loResDesc+' ('+str(self.lowestResultIds)[1:-1]+')d'
-    else:
-      rollDesc = '\u0060 '+str(highestResult)+' \u0060'+ arrowSign + hiResDesc+' ('+str(self.highestResultIds)[1:-1]+')d\n\u0060 '+str(lowestResult)+' \u0060'+ arrowSign + loResDesc+' ('+str(self.lowestResultIds)[1:-1]+')d'
-    
-    # retorna resultados da rolagem
+    # transcreve resultados maximo e minimo da rolagem
     diceResults = []
     if self.hasSum and self.sumOverEach:
+      hiResValue = '\u0060 '+str(highestResult.compound)+' \u0060'
+      loResValue = '\u0060 '+str(lowestResult.compound)+' \u0060'
       for diceResult in self.results:
         diceResults.append(diceResult.compound)
     else:
+      hiResValue = '\u0060 '+str(highestResult.simple)+' \u0060'
+      loResValue = '\u0060 '+str(lowestResult.simple)+' \u0060'
       for diceResult in self.results:
         diceResults.append(diceResult.simple)
-    resultMsg = '\u0060 '+str(self.finalResult)+' \u0060'+ arrowSign + str(diceResults) + ' '+self.name +'\n'+ rollDesc
-
+    
+    # transcreve descricao dos valores maximo e minimo
+    rollDesc = ''
+    if self.amount == 1:
+      if hasCriticalStrike:
+        rollDesc = hiResDesc
+      elif hasCriticalFailure:
+        rollDesc = loResDesc
+    elif highestResult == lowestResult:
+      if hasCriticalStrike:
+        rollDesc = hiResValue + arrowSign + hiResDesc + hiResIds
+      elif hasCriticalFailure:
+        rollDesc = loResValue + arrowSign + loResDesc + loResIds
+    else:
+      rollDesc = hiResValue + arrowSign + hiResDesc + hiResIds + '\n' + loResValue + arrowSign + loResDesc + loResIds
+    
+    # retorna resultados da rolagem
+    finalResult = '\u0060 '+str(self.finalResult)+' \u0060'
+    resultMsg = finalResult + arrowSign + str(diceResults) + ' ' + self.name +'\n'+ rollDesc
     return resultMsg
