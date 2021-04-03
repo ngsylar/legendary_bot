@@ -107,8 +107,8 @@ class Dice:
     hasCriticalFailure = (lowestResult.simple == 1)
     hiResDesc = highestResultDescs[hasCriticalStrike]
     loResDesc = lowestResultDescs[hasCriticalFailure]
-    hiResIds = ' ('+str([i+1 for i in self.highestResultIds])[1:-1]+')d'
-    loResIds = ' ('+str([i+1 for i in self.lowestResultIds])[1:-1]+')d'
+    hiResIds = ' ('+str([i+1 for i in self.highestResultIds])[1:-1]+')th'
+    loResIds = ' ('+str([i+1 for i in self.lowestResultIds])[1:-1]+')th'
     
     # transcreve resultados maximo e minimo da rolagem
     diceResults = []

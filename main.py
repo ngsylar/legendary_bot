@@ -2,7 +2,7 @@ import discord
 import os
 import re
 from roll_dice import random, Dice
-from guild_db import db, Gdb
+from guild_db import db, GuildDB
 from keep_alive import keep_alive
 
 client = discord.Client()
@@ -10,60 +10,56 @@ client = discord.Client()
 @client.event
 async def on_ready():
   print('We have logged in as {0.user}'.format(client))
+  await client.change_presence(activity=discord.Game(name='RPG'))
 
 @client.event
 async def on_message(message):
+  msgAuthor = message.author.guild_permissions
+  msg = message.content
+  server = GuildDB()
+
   if message.author == client.user:
     return
-
-  msg = message.content
 
   # ---------------------------------------------------
   # respostas padrao
 
   if str(client.user.id) in msg:
-    await message.channel.send(Gdb.whoami[0])
+    await message.channel.send(server.whoami)
   
   if msg.startswith('legen!dary'):
     option = random.randint(0, 7)
-    await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.legendary[option])
+    await message.channel.send('<@'+str(message.author.id)+'>, '+server.legendary[option])
 
 
   # ---------------------------------------------------
-  # definir de canal secreto
+  # definicao de canal lendario
   
   server_id = str(message.guild.id)
 
-  if msg.startswith('legen!new'):
-    if message.author.guild_permissions.manage_channels:
-      schn = msg.split('legen!new ', 1)[1]
-      if (len(schn) > 1) and (schn[1] == '#'):
-        schn = msg.split('#', 1)[1][:-1]
-      Gdb.update_sch(server_id, schn)
-      await message.channel.send(Gdb.whoami[1])
+  if msg.startswith('legen!ch'):
+    if msgAuthor.manage_channels:
+      server.update_sch(server_id, msg)
+      await message.channel.send(server.operationStatus)
     else:
-      await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.sorry)
+      await message.channel.send('<@'+str(message.author.id)+'>, '+server.sorry)
   
   if msg.startswith('legen!del'):
-    if message.author.guild_permissions.manage_channels:
+    if msgAuthor.manage_channels:
       if server_id in db.keys():
-        Gdb.delete_sch(server_id)
-        await message.channel.send(Gdb.whoami[2])
+        server.delete_sch(server_id)
+        await message.channel.send(server.operationStatus)
     else:
-      await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.sorry)
+      await message.channel.send('<@'+str(message.author.id)+'>, '+server.sorry)
   
   if msg.startswith('play!book'):
-    if message.author.guild_permissions.manage_channels:
+    if msgAuthor.manage_channels:
       if server_id in db.keys():
         await message.channel.send('<#'+db[server_id]+'> \u27F5 The Secret Channel')
-#         user_roles = []
-#         for role in message.author.roles:
-#           user_roles.append(role.name)
-#         await message.channel.send(user_roles)
       else:
-        await message.channel.send(Gdb.whoami[3])
+        await message.channel.send(server.sometimes)
     else:
-      await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.sorry)
+      await message.channel.send('<@'+str(message.author.id)+'>, '+server.sorry)
 
 
   # ---------------------------------------------------
@@ -71,26 +67,22 @@ async def on_message(message):
 
   if re.match('[0-9]+[Ss]?[Dd][0-9]+', msg):
     dice = Dice()
-    if re.match('[0-9]+[Ss]', msg) and (server_id in db.keys()):
-      try:
-        dicename = msg.lower().replace('sd','d')
-        sendmsg = dice.roll(dicename)
-        sch = client.get_channel(int(db[server_id]))
-        option = random.randint(0, 1)
-        await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.awesome[option])
-        await sch.send('<@'+str(message.author.id)+'>,\n'+sendmsg)
-      except ValueError:
-        return
-    else:
-      try:
-        sendmsg = dice.roll(msg.lower())
-        option = random.randint(0, 1)
-        await message.channel.send('<@'+str(message.author.id)+'>, '+Gdb.awesome[option]+'\n'+sendmsg)
-      except ValueError:
-        return
+    try:
+      if re.match('[0-9]+[Ss]', msg) and (server_id in db.keys()):
+        secretChannel = client.get_channel(int(db[server_id]))
+        diceName = msg.lower().replace('sd','d')
+        rollResults = dice.roll(diceName)
+        await message.channel.send('<@'+str(message.author.id)+'>, '+ server.awesome)
+        await secretChannel.send('<@'+str(message.author.id)+'>,\n' + rollResults)
+      else:
+        diceName = msg.lower()
+        rollResults = dice.roll(diceName)
+        await message.channel.send('<@'+str(message.author.id)+'>, '+ server.awesome + '\n' + rollResults)
+    except ValueError:
+      return
+
 
   # ---------------------------------------------------
-
 
 keep_alive()
 client.run(os.getenv('TOKEN'))
