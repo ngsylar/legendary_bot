@@ -33,7 +33,7 @@ async def on_message(message):
 
 
   # ---------------------------------------------------
-  # definicao de canal lendario
+  # definicao de canal secreto
   
   server_id = str(message.guild.id)
 
