@@ -19,7 +19,7 @@ class Dice:
     
     # calcula a soma final dos dados lancados
     self.finalResult = 0
-    if self.hasSum and self.sumOverEach:
+    if self.hasSumOverEach:
       for value in self.results:
         self.finalResult += value.compound
     else:
@@ -43,12 +43,14 @@ class Dice:
     self.__validate_roll()
     self.hasSum = len(self.raw) > 2
     if self.hasSum:
-      self.sumOverEach = (self.raw[2][-1].casefold() == 'e')
+      self.hasSumOverEach = (self.raw[2][-1].casefold() == 'e')
+    else:
+      self.hasSumOverEach = False
 
     # define valor da soma
     self.sumTerm = 0
     if self.hasSum:
-      if self.sumOverEach:
+      if self.hasSumOverEach:
         self.raw[2] = self.raw[2][:-1]
       sumFactors = self.raw[2].split('+')
       for sumFactor in sumFactors:
@@ -90,7 +92,7 @@ class Dice:
     # define o nome do dado:
     sumDesc = ''
     diceNameSufix = ''
-    if self.hasSum and self.sumOverEach:
+    if self.hasSumOverEach:
       diceNameSufix = ' each'
     if self.sumTerm < 0:
       sumDesc = negSign + str(self.sumTerm*(-1)) + diceNameSufix
@@ -112,7 +114,7 @@ class Dice:
     
     # transcreve resultados maximo e minimo da rolagem
     diceResults = []
-    if self.hasSum and self.sumOverEach:
+    if self.hasSumOverEach:
       hiResValue = '\u0060 '+str(highestResult.compound)+' \u0060'
       loResValue = '\u0060 '+str(lowestResult.compound)+' \u0060'
       for diceResult in self.results:
@@ -140,5 +142,5 @@ class Dice:
     
     # retorna resultados da rolagem
     finalResult = '\u0060 '+str(self.finalResult)+' \u0060'
-    resultMsg = finalResult + arrowSign + str(diceResults) + ' ' + self.name +'\n'+ rollDesc
+    resultMsg = finalResult + arrowSign + str(diceResults) + ' ' + self.name + '\n' + rollDesc
     return resultMsg
