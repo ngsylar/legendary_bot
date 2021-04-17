@@ -1,8 +1,10 @@
 import discord
 import os
 import re
-from roll_dice import random, Dice
-from guild_db import db, GuildDB
+import random
+from replit import db
+from roll_dice import Dice
+from guild_db import GuildDB
 from keep_alive import keep_alive
 
 bot = discord.Client()
@@ -77,6 +79,12 @@ async def on_message(message):
         await message.channel.send('<@'+str(message.author.id)+'>, '+ guild.awesome + '\n' + rollResults)
     except ValueError:
       return
+  
+  if message.content.startswith('legen!roll'):
+    if message.author.guild_permissions.administrator:
+      await message.channel.send(dice.roll_test())
+    else:
+      await message.channel.send('<@'+str(message.author.id)+'>, '+guild.sorry)
 
 
   # ---------------------------------------------------

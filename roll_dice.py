@@ -1,12 +1,13 @@
 from collections import namedtuple
 import random
+from dice_roll_test_routine import define_test_routine
 
 class Dice:
-  def __init__(self):
+  def __init__ (self):
     self.__compute_ith_result = namedtuple('ithDiceResult', ['simple', 'compound'])
 
   # rolar dados
-  def roll(self, msg):
+  def roll (self, msg):
     self.__decode_msg(msg)
 
     # faz o lancamento dos dados
@@ -16,23 +17,34 @@ class Dice:
       self.results.append(self.__compute_ith_result(
         simple = diceiResult,
         compound = diceiResult + self.sumTerm))
-    
-    # calcula a soma final dos dados lancados
-    self.finalResult = 0
-    if self.hasSumOverEach:
-      for value in self.results:
-        self.finalResult += value.compound
-    else:
-      for value in self.results:
-        self.finalResult += value.simple
-      self.finalResult += self.sumTerm
 
     # analisa e mostra resultados
+    self.__compute_sum()
     self.__find_extreme_vals()
     return self.__show_results()
+
+  # rotina de testes de rolagem
+  def roll_test (self):
+    testRoutine = define_test_routine()
+    
+    testOutput = ''
+    for dice_i in testRoutine:
+      self.__decode_msg(dice_i.name)
+      
+      self.results = []
+      for diceiResult in dice_i.results:
+        self.results.append(self.__compute_ith_result(
+          simple = diceiResult,
+          compound = diceiResult + self.sumTerm))
+      
+      self.__compute_sum()
+      self.__find_extreme_vals()
+      testOutput += self.__show_results() + '\n\n'
+    
+    return testOutput
   
   # interpreta mensagem inserida pelo usuario
-  def __decode_msg(self, msg):
+  def __decode_msg (self, msg):
     # particiona mensagem
     self.raw = msg.split('d', 1)
     self.raw.extend(self.raw.pop().replace('-','+-').split('+',1))
@@ -57,12 +69,23 @@ class Dice:
         self.sumTerm += int(sumFactor)
 
   # testa limites de lancamento
-  def __validate_roll(self):
+  def __validate_roll (self):
     if (self.amount < 1) or (self.amount > 100) or (self.faces < 2) or (self.faces > 200):
       raise ValueError
+
+  # calcula a soma final dos dados lancados
+  def __compute_sum (self):
+    self.finalResult = 0
+    if self.hasSumOverEach:
+      for value in self.results:
+        self.finalResult += value.compound
+    else:
+      for value in self.results:
+        self.finalResult += value.simple
+      self.finalResult += self.sumTerm
   
   # achar valores maximo e minimo da rolagem
-  def __find_extreme_vals(self):
+  def __find_extreme_vals (self):
     self.highestResultIds = [0]
     self.lowestResultIds = [0]
     highestResult = -999999
@@ -84,7 +107,7 @@ class Dice:
         self.lowestResultIds.append(i)
   
   # mostra o resultado da rolagem
-  def __show_results(self):
+  def __show_results (self):
     arrowSign = ' \u27F5 '
     negSign = ' \u2013 '
     posSign = ' + '
