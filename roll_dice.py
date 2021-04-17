@@ -1,6 +1,6 @@
 from collections import namedtuple
 import random
-from dice_roll_test_routine import define_test_routine
+from dice_roll_test_routine import DiceTest
 
 class Dice:
   def __init__ (self):
@@ -25,7 +25,8 @@ class Dice:
 
   # rotina de testes de rolagem
   def roll_test (self):
-    testRoutine = define_test_routine()
+    diceTest = DiceTest()
+    testRoutine = diceTest.define_routine()
     
     testOutput = ''
     for dice_i in testRoutine:
@@ -41,6 +42,10 @@ class Dice:
       self.__find_extreme_vals()
       testOutput += self.__show_results() + '\n\n'
     
+    if diceTest.validate_response(testOutput):
+      testOutput += ':white_check_mark: Nailed it!'
+    else:
+      testOutput += ':warning: WRONG! Wrong, wrong, wrong, wrong, wrong!'
     return testOutput
   
   # interpreta mensagem inserida pelo usuario
@@ -152,18 +157,18 @@ class Dice:
     rollDesc = ''
     if self.amount == 1:
       if hasCriticalStrike:
-        rollDesc = hiResDesc
+        rollDesc = '\n' + hiResDesc
       elif hasCriticalFailure:
-        rollDesc = loResDesc
+        rollDesc = '\n' + loResDesc
     elif highestResult == lowestResult:
       if hasCriticalStrike:
-        rollDesc = hiResValue + arrowSign + hiResDesc + hiResIds
+        rollDesc = '\n' + hiResValue + arrowSign + hiResDesc + hiResIds
       elif hasCriticalFailure:
-        rollDesc = loResValue + arrowSign + loResDesc + loResIds
+        rollDesc = '\n' + loResValue + arrowSign + loResDesc + loResIds
     else:
-      rollDesc = hiResValue + arrowSign + hiResDesc + hiResIds + '\n' + loResValue + arrowSign + loResDesc + loResIds
+      rollDesc = '\n' + hiResValue + arrowSign + hiResDesc + hiResIds + '\n' + loResValue + arrowSign + loResDesc + loResIds
     
     # retorna resultados da rolagem
     finalResult = '\u0060 '+str(self.finalResult)+' \u0060'
-    resultMsg = finalResult + arrowSign + str(diceResults) + ' ' + self.name + '\n' + rollDesc
+    resultMsg = finalResult + arrowSign + str(diceResults) + ' ' + self.name + rollDesc
     return resultMsg
