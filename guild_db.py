@@ -1,7 +1,7 @@
 from replit import db
+import re
 
 # banco de dados do servidor
-
 class GuildDB:
   def __init__(self):
     self.whoami = 'Think of me as Yoda, only instead of being little and green, I\'m a bot and I\'m awesome. I\'m your bro: I\'m Broda!'
@@ -19,20 +19,21 @@ class GuildDB:
       'without me, it’s just aweso.'
     ]
 
-  def update_sch(self, server_id, msg):
-    schRaw = msg.split('legen!ch', 1)
-    msgHasChannel = (len(schRaw) > 1) and schRaw[1].startswith(' <#') and (len(schRaw[1]) > 1)
+  def update_sch(self, guild_id, msg):
+    msgHasChannel = re.match('legen!sch[ ]+<#[0-9]{18}>[ ]*$', msg)
 
     if msgHasChannel:
-      secretChannel = schRaw[1].split('#', 1)[1][:-1]
-      db[server_id] = secretChannel
+      sch_id = msg.split('<#',1)[1].split('>',1)[0]
+      db[guild_id] = sch_id
       self.operationStatus = self.challenge
+    elif guild_id in db.keys():
+      self.operationStatus = '<#'+db[guild_id]+'> \u27F5 The Secret Channel'
     else:
       self.operationStatus = self.sorry
 
-  def delete_sch(self, server_id):
-    if server_id in db.keys():
-      del db[server_id]
+  def delete_sch(self, guild_id):
+    if guild_id in db.keys():
+      del db[guild_id]
       self.operationStatus = self.challenge
     else:
       self.operationStatus = self.sorry
