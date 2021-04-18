@@ -44,6 +44,7 @@ async def on_message(msg):
     else:
       await msg.channel.send('<@'+str(msg.author.id)+'>, '+guild.sorry)
   
+  # editar codigo: adicionar o 'sch' dps do comando
   if msg.content.startswith('legen!del'):
     if msg.author.guild_permissions.manage_channels:
       if guild_id in db.keys():
@@ -54,7 +55,11 @@ async def on_message(msg):
   
   if msg.content.startswith('legen!list'):
     if msg.author.guild_permissions.administrator:
-      await msg.channel.send(list(db.keys()))
+      if guild_id in db.keys():
+        guild_db = db[guild_id]
+        await msg.channel.send(str(guild_db))
+      else:
+        await msg.channel.send('<@'+str(msg.author.id)+'>, '+guild.sorry)
     else:
       await msg.channel.send('<@'+str(msg.author.id)+'>, '+guild.sorry)
 
@@ -65,11 +70,14 @@ async def on_message(msg):
   if re.match('[0-9]+[Ss]?[Dd][0-9]+', msg.content):
     try:
       if re.match('[0-9]+[Ss]', msg.content) and (guild_id in db.keys()):
-        secretChannel = bot.get_channel(int(db[guild_id]))
-        diceName = msg.content.lower().replace('sd','d')
-        rollResults = dice.roll(diceName)
-        await msg.channel.send('<@'+str(msg.author.id)+'>, '+ guild.awesome)
-        await secretChannel.send('<@'+str(msg.author.id)+'>,\n' + rollResults)
+        if guild_id in db.keys():
+          guild_db = db[guild_id]
+          if 'sch' in guild_db:
+            secretChannel = bot.get_channel(int(guild_db['sch']))
+            diceName = msg.content.lower().replace('sd','d')
+            rollResults = dice.roll(diceName)
+            await msg.channel.send('<@'+str(msg.author.id)+'>, '+ guild.awesome)
+            await secretChannel.send('<@'+str(msg.author.id)+'>,\n' + rollResults)
       else:
         diceName = msg.content.lower()
         rollResults = dice.roll(diceName)

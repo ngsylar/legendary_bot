@@ -20,20 +20,34 @@ class GuildDB:
     ]
 
   def update_sch(self, guild_id, msg):
-    msgHasChannel = re.match('legen!sch[ ]+<#[0-9]{18}>[ ]*$', msg)
+    if guild_id not in db.keys():
+      db[guild_id] = {}
+    guild_db = db[guild_id]
 
-    if msgHasChannel:
-      sch_id = msg.split('<#',1)[1].split('>',1)[0]
-      db[guild_id] = sch_id
+    msg_has_channel = re.match('legen!sch[ ]+<#[0-9]{18}>[ ]*$', msg)
+    
+    if msg_has_channel:
+      secret_channel_id = msg.split('<#',1)[1].split('>',1)[0]
+      
+      guild_db['sch'] = secret_channel_id
+      db[guild_id] = guild_db
       self.operationStatus = self.challenge
-    elif guild_id in db.keys():
-      self.operationStatus = '<#'+db[guild_id]+'> \u27F5 The Secret Channel'
+    
+    elif 'sch' in guild_db:
+      self.operationStatus = '<#'+guild_db['sch']+'> \u27F5 The Secret Channel'
     else:
       self.operationStatus = self.sorry
 
   def delete_sch(self, guild_id):
     if guild_id in db.keys():
-      del db[guild_id]
-      self.operationStatus = self.challenge
+      guild_db = db[guild_id]
+      
+      if 'sch' in guild_db:
+        del guild_db['sch']
+        db[guild_id] = guild_db
+        self.operationStatus = self.challenge
+      
+      else:
+        self.operationStatus = self.sorry
     else:
       self.operationStatus = self.sorry
