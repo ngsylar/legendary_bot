@@ -1,6 +1,5 @@
-import re
 from replit import db
-from auto_responder import AutoResponder
+import re
 
 # banco de dados do servidor
 class GuildDB:
@@ -29,10 +28,10 @@ class GuildDB:
     if 'sch' in self.gdb:
       self.queryResult = '<#'+self.gdb['sch']+'>' + arrowSign + 'The Secret Channel'
     else:
-      self.queryResult = AutoResponder().sometimes_quote(msg)
+      self.queryResult = None
 
   def remove_record (self, msg):
-    self.successful_op = AutoResponder().sometimes_quote(msg)
+    self.op_was_successful = False
     
     self.get_gid_gdb_sch(msg)
     msg_contains_sch = re.match(r'\s+sch\s*$', msg.content[9:])
@@ -41,4 +40,4 @@ class GuildDB:
       if 'sch' in self.gdb:
         del self.gdb['sch']
         db[self.gid] = self.gdb
-        self.successful_op = AutoResponder().challenge_quote(msg)
+        self.op_was_successful = True

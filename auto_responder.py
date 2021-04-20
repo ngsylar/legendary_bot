@@ -4,10 +4,9 @@ import random
 class AutoResponder:
   def __init__ (self):
     self.whoami = 'Think of me as Yoda, only instead of being little and green, I\'m a bot and I\'m awesome. I\'m your bro: I\'m Broda!'
-    self.challenge = 'Challenge accepted!'
-    self.sorry = 'I\'m sorry, I can\'t hear you over the sound of how awesome I am.'
+    self.challenge = 'challenge accepted!'
     self.sometimes = 'Sometimes we search for one thing but discover another.'
-    self.awesome = 'challenge accepted!'
+    self.sorry = 'I\'m sorry, I can\'t hear you over the sound of how awesome I am.'
     self.legendary = [
       'believe it or not, you was not always as awesome as you are today.',
       'you poor thing. Having to grow up in the Insula, with the Palace right there.',
@@ -18,19 +17,43 @@ class AutoResponder:
       'without me, it’s just aweso.'
     ]
   
+  def whoami_quote (self, msg):
+    return msg.channel.send(self.whoami)
+
   def legendary_quote (self, msg):
     option = random.randint(0, 7)
     answer = '<@'+str(msg.author.id)+'>, ' + self.legendary[option]
-    return answer
+    return msg.channel.send(answer)
 
   def challenge_quote (self, msg):
-    answer = '<@'+str(msg.author.id)+'>, ' + self.awesome
-    return answer
+    answer = '<@'+str(msg.author.id)+'>, ' + self.challenge
+    return msg.channel.send(answer)
   
   def sometimes_quote (self, msg):
     answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
-    return answer
+    return msg.channel.send(answer)
 
   def sorry_quote (self, msg):
     answer = '<@'+str(msg.author.id)+'>, ' + self.sorry
-    return answer
+    return msg.channel.send(answer)
+
+  def db_query (self, msg, guild):
+    if guild.queryResult:
+      return msg.channel.send(guild.queryResult)
+    else:
+      answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
+      return msg.channel.send(answer)
+  
+  def op_status (self, msg, guild):
+    if guild.op_was_successful:
+      answer = '<@'+str(msg.author.id)+'>, ' + self.challenge
+    else:
+      answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
+    return msg.channel.send(answer)
+
+  def roll_result (self, msg, dice):
+    if dice.isSecret:
+      answer = '<@'+str(msg.author.id)+'>,\n' + dice.rollResults
+    else:
+      answer = '<@'+str(msg.author.id)+'>, '+ self.challenge + '\n' + dice.rollResults
+    return msg.channel.send(answer)
