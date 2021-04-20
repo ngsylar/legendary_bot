@@ -1,10 +1,12 @@
-from collections import namedtuple
+import re
 import random
+from collections import namedtuple
 from dice_roll_test_routine import DiceTest
 
 class Dice:
   def __init__ (self):
     self.__compute_ith_result = namedtuple('ithDiceResult', ['simple', 'compound'])
+    self.nameRegex = r'[0-9]+[SsHh]?[Dd][0-9]+[\+\-]?[0-9]+[\+\-0-9]*e?\s*'
 
   # rolar dados
   def roll (self, msg):
@@ -21,7 +23,7 @@ class Dice:
     # analisa e mostra resultados
     self.__compute_sum()
     self.__find_extreme_vals()
-    return self.__show_results()
+    self.__arrange_results()
 
   # rotina de testes de rolagem
   def roll_test (self):
@@ -40,27 +42,31 @@ class Dice:
       
       self.__compute_sum()
       self.__find_extreme_vals()
-      testOutput += self.__show_results() + '\n\n'
+      self.__arrange_results()
+      testOutput += self.rollResults + '\n\n'
     
     if diceTest.validate_response(testOutput):
-      testOutput += ':white_check_mark: Nailed it!'
+      self.rollResults = testOutput + ':white_check_mark: Nailed it!'
     else:
-      testOutput += ':warning: WRONG! Wrong, wrong, wrong, wrong, wrong!'
-    return testOutput
+      self.rollResults = testOutput + ':warning: WRONG! Wrong, wrong, wrong, wrong, wrong!'
   
-  # interpreta mensagem inserida pelo usuario
-  def __decode_msg (self, msg):
+  # decodifica mensagem inserida pelo usuario
+  def __decode_msg (self, msgContent):
+    # define o modo de rolagem
+    self.isSecret = re.match(r'[0-9]+[Ss][Dd]', msgContent)
+    self.isHidden = re.match(r'[0-9]+[Hh][Dd]', msgContent)
+    
     # particiona mensagem
-    self.raw = msg.split('d', 1)
-    self.raw.extend(self.raw.pop().replace('-','+-').split('+',1))
+    diceNameRaw = re.sub(r'[sh]', '', msgContent.lower().split(' ', 1)[0]).split('d', 1)
+    diceNameRaw.extend(diceNameRaw.pop().replace('-','+-').split('+',1))
     
     # atribui caracteristicas ao lancamento
-    self.amount = int(self.raw[0])
-    self.faces = int(self.raw[1])
+    self.amount = int(diceNameRaw[0])
+    self.faces = int(diceNameRaw[1])
     self.__validate_roll()
-    self.hasSum = len(self.raw) > 2
+    self.hasSum = len(diceNameRaw) > 2
     if self.hasSum:
-      self.hasSumOverEach = (self.raw[2][-1].casefold() == 'e')
+      self.hasSumOverEach = (diceNameRaw[2][-1].casefold() == 'e')
     else:
       self.hasSumOverEach = False
 
@@ -68,8 +74,8 @@ class Dice:
     self.sumTerm = 0
     if self.hasSum:
       if self.hasSumOverEach:
-        self.raw[2] = self.raw[2][:-1]
-      sumFactors = self.raw[2].split('+')
+        diceNameRaw[2] = diceNameRaw[2][:-1]
+      sumFactors = diceNameRaw[2].split('+')
       for sumFactor in sumFactors:
         self.sumTerm += int(sumFactor)
 
@@ -112,7 +118,7 @@ class Dice:
         self.lowestResultIds.append(i)
   
   # mostra o resultado da rolagem
-  def __show_results (self):
+  def __arrange_results (self):
     arrowSign = ' \u27F5 '
     negSign = ' \u2013 '
     posSign = ' + '
@@ -170,5 +176,4 @@ class Dice:
     
     # retorna resultados da rolagem
     finalResult = '\u0060 '+str(self.finalResult)+' \u0060'
-    resultMsg = finalResult + arrowSign + str(diceResults) + ' ' + self.name + rollDesc
-    return resultMsg
+    self.rollResults = finalResult + arrowSign + str(diceResults) + ' ' + self.name + rollDesc
