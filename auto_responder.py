@@ -38,11 +38,12 @@ class AutoResponder:
     return msg.channel.send(answer)
 
   def db_query (self, msg, guild):
+    arrowSign = ' \u27F5 '
     if guild.queryResult:
-      return msg.channel.send(guild.queryResult)
+      answer = '<#'+guild.queryResult+'>' + arrowSign + 'The Secret Channel'
     else:
       answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
-      return msg.channel.send(answer)
+    return msg.channel.send(answer)
   
   def op_status (self, msg, guild):
     if guild.op_was_successful:
