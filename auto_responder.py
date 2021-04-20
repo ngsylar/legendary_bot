@@ -52,9 +52,10 @@ class AutoResponder:
       answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
     return msg.channel.send(answer)
 
-  def roll_result (self, msg, dice):
-    if dice.isSecret:
+  def roll_result (self, msg, dice, guild_sch=None):
+    if dice.isSecret and guild_sch:
       answer = '<@'+str(msg.author.id)+'>,\n' + dice.rollResults
+      return guild_sch.send(answer)
     else:
       answer = '<@'+str(msg.author.id)+'>, '+ self.challenge + '\n' + dice.rollResults
-    return msg.channel.send(answer)
+      return msg.channel.send(answer)

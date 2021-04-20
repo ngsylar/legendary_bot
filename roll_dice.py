@@ -9,8 +9,8 @@ class Dice:
     self.nameRegex = r'[0-9]+[SsHh]?[Dd][0-9]+[\+\-]?[0-9]+[\+\-0-9]*e?\s*'
 
   # rolar dados
-  def roll (self, msg):
-    self.__decode_msg(msg)
+  def roll (self, msgContent):
+    self.__decode_msg(msgContent)
 
     # faz o lancamento dos dados
     self.results = []

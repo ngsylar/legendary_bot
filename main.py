@@ -61,15 +61,18 @@ async def on_message(msg):
 
   elif re.match(dice.nameRegex, msg.content):
     try:
-      guild.get_gid_gdb_sch(msg, bot)
       dice.roll(msg.content)
       
       if dice.isSecret:
+        guild.get_gid_gdb_sch(msg, bot)
         await reply.challenge_quote(msg)
+        await reply.roll_result(msg, dice, guild.sch)
+      
       # if dice.isHidden:
       #   # do something here
-
-      await reply.roll_result(msg, dice)
+      
+      else:
+        await reply.roll_result(msg, dice)
     
     except ValueError:
       return
