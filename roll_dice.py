@@ -57,8 +57,16 @@ class Dice:
     self.isHidden = re.match(r'[0-9]+[Hh][Dd]', msgContent)
     
     # particiona mensagem
-    diceNameRaw = re.sub(r'[sh]', '', msgContent.lower().split(' ', 1)[0]).split('d', 1)
+    msgRaw = msgContent.lower().split(' ', 1)
+    diceNameRaw = re.sub(r'[sh]', '', msgRaw[0]).split('d', 1)
     diceNameRaw.extend(diceNameRaw.pop().replace('-','+-').split('+',1))
+    
+    # separa nome do dado da mensagem embutida pelo jogador
+    self.playerQuote = None
+    if len(msgRaw) > 1:
+      quoteRaw = re.sub(r'^\s+', '', msgRaw[1])
+      if len(quoteRaw) > 1:
+        self.playerQuote = quoteRaw
     
     # atribui caracteristicas ao lancamento
     self.amount = int(diceNameRaw[0])

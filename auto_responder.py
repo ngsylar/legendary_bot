@@ -54,8 +54,14 @@ class AutoResponder:
 
   def roll_result (self, msg, dice, guild_sch=None):
     if dice.isSecret and guild_sch:
-      answer = '<@'+str(msg.author.id)+'>,\n' + dice.rollResults
-      return guild_sch.send(answer)
+      rollQuote = ''
+      target_channel =  guild_sch
     else:
-      answer = '<@'+str(msg.author.id)+'>, '+ self.challenge + '\n' + dice.rollResults
-      return msg.channel.send(answer)
+      rollQuote = self.challenge
+      target_channel = msg.channel
+
+    if dice.playerQuote:
+      rollQuote = '\"' + dice.playerQuote + '\",'
+
+    answer = '<@'+str(msg.author.id)+'>, ' + rollQuote + '\n' + dice.rollResults
+    return target_channel.send(answer)
