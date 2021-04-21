@@ -1,9 +1,11 @@
 import random
+import re
 
 # banco de dados do servidor
 class AutoResponder:
   def __init__ (self):
     self.whoami = 'Think of me as Yoda, only instead of being little and green, I\'m a bot and I\'m awesome. I\'m your bro: I\'m Broda!'
+    self.please = 'ha, ha! Please.'
     self.challenge = 'challenge accepted!'
     self.sometimes = 'Sometimes we search for one thing but discover another.'
     self.sorry = 'I\'m sorry, I can\'t hear you over the sound of how awesome I am.'
@@ -21,8 +23,20 @@ class AutoResponder:
     return msg.channel.send(self.whoami)
 
   def legendary_quote (self, msg):
-    option = random.randint(0, 7)
+    option = random.randint(0, len(self.legendary))
     answer = '<@'+str(msg.author.id)+'>, ' + self.legendary[option]
+    return msg.channel.send(answer)
+  
+  def please_quote (self, msg, bot):
+    arrowSign = ' \u27F5 '
+    
+    answer = '<@'+str(msg.author.id)+'>, ' + self.please
+    msgRaw = msg.content.split(' ', 1)
+
+    if (len(msgRaw) > 1) and re.match(r'\s*please\s*$', msgRaw[1]):
+      answer = '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.\n'
+      answer += '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.'
+    
     return msg.channel.send(answer)
 
   def challenge_quote (self, msg):
@@ -53,7 +67,7 @@ class AutoResponder:
     return msg.channel.send(answer)
 
   def roll_result (self, msg, dice, guild_sch=None):
-    if dice.isSecret and guild_sch:
+    if (dice.isSecret or dice.isHidden) and guild_sch:
       rollQuote = ''
       target_channel =  guild_sch
     else:

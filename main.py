@@ -33,6 +33,11 @@ async def on_message(msg):
   elif re.match(r'legen!dary\s*$', msg.content):
     await reply.legendary_quote(msg)
 
+  # quer saber o que eu faco?
+  # falta ainda: terminar essa funcao
+  elif re.match(r'legen!help\s*', msg.content):
+    await reply.please_quote(msg, bot)
+
 
   # ----------------------------------------------------------------------------------------------
   # definicao de canal secreto
@@ -57,7 +62,6 @@ async def on_message(msg):
 
   # ----------------------------------------------------------------------------------------------
   # usar canal secreto
-  # falta ainda: hidden dice
 
   elif re.match(dice.nameRegex, msg.content):
     try:
@@ -68,13 +72,15 @@ async def on_message(msg):
         await reply.challenge_quote(msg)
         await reply.roll_result(msg, dice, guild.sch)
       
-      # if dice.isHidden:
-      #   # do something here
+      elif dice.isHidden:
+        guild.get_gid_gdb_sch(msg, bot)
+        await msg.delete()
+        await reply.roll_result(msg, dice, guild.sch)
       
       else:
         await reply.roll_result(msg, dice)
     
-    except ValueError:
+    except:
       return
   
   elif re.match(r'legen!roll\s*', msg.content):
