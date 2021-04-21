@@ -29,13 +29,18 @@ class AutoResponder:
   
   def please_quote (self, msg, bot):
     arrowSign = ' \u27F5 '
+    textBox = '\u0060'
     
     answer = '<@'+str(msg.author.id)+'>, ' + self.please
     msgRaw = msg.content.split(' ', 1)
 
     if (len(msgRaw) > 1) and re.match(r'\s*please\s*$', msgRaw[1]):
-      answer = '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.\n'
-      answer += '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.'
+      answer = '**Legendary\'s commands**\n'
+      answer += '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.\n'
+      answer += textBox + 'legen!dary' + textBox + arrowSign + 'Provides useful information.\n'
+      answer += textBox + 'legen!sch {#channel}' + textBox + arrowSign + 'Assigns or queries the Secret Channel.\n'
+      answer += textBox + 'legen!del {option}' + textBox + arrowSign + 'Removes a record from the guild database.\n'
+      answer += textBox + '[amount]{behavior}d[type]{modifier}{method}' + textBox + arrowSign + 'Rolls the dice.'
     
     return msg.channel.send(answer)
 
