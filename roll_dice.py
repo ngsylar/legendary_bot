@@ -6,7 +6,7 @@ from dice_roll_test_routine import DiceTest
 class Dice:
   def __init__ (self):
     self.__compute_ith_result = namedtuple('ithDiceResult', ['simple', 'compound'])
-    self.nameRegex = r'[0-9]+[SsHh]?[Dd][0-9]+[\+\-]?[0-9]+[\+\-0-9]*e?\s*'
+    self.nameRegex = r'\d+[SsHh]?[Dd]\d+(([\+\-]\d+)+e?)?(\s+(.*\n*)*)?$'
 
   # rolar dados
   def roll (self, msgContent):
@@ -64,7 +64,7 @@ class Dice:
     # separa nome do dado da mensagem embutida pelo jogador
     self.playerQuote = None
     if len(msgRaw) > 1:
-      quoteRaw = re.sub(r'^\s+', '', msgRaw[1])
+      quoteRaw = re.sub(r'^\s+', '', msgRaw[1]).split('\n', 1)[0]
       if len(quoteRaw) > 1:
         self.playerQuote = quoteRaw
     
@@ -89,7 +89,7 @@ class Dice:
 
   # testa limites de lancamento
   def __validate_roll (self):
-    if (self.amount < 1) or (self.amount > 100) or (self.faces < 2) or (self.faces > 200):
+    if (self.amount < 1) or (self.amount > 100) or (self.faces < 2) or (self.faces > 1000):
       raise ValueError
 
   # calcula a soma final dos dados lancados

@@ -71,13 +71,15 @@ class AutoResponder:
       answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
     return msg.channel.send(answer)
 
-  def roll_result (self, msg, dice, guild_sch=None):
-    if (dice.isSecret or dice.isHidden) and guild_sch:
+  def roll_result (self, msg, dice, guild=None, bot=None):
+    if (dice.isSecret or dice.isHidden) and (guild and bot):
+      guild.get_gid_gdb_sch(msg, bot)
+      target_channel =  guild.sch
       rollQuote = ''
-      target_channel =  guild_sch
+    
     else:
-      rollQuote = self.challenge
       target_channel = msg.channel
+      rollQuote = self.challenge
 
     if dice.playerQuote:
       rollQuote = '\"' + dice.playerQuote + '\",'

@@ -40,7 +40,7 @@ async def on_message(msg):
 
 
   # ----------------------------------------------------------------------------------------------
-  # definicao de canal secreto
+  # operacoes com banco de dados
   # falta ainda: add cargos
 
   # definir ou consultar o canal secreto
@@ -61,21 +61,19 @@ async def on_message(msg):
 
 
   # ----------------------------------------------------------------------------------------------
-  # usar canal secreto
+  # rolar dados
 
   elif re.match(dice.nameRegex, msg.content):
     try:
       dice.roll(msg.content)
       
       if dice.isSecret:
-        guild.get_gid_gdb_sch(msg, bot)
         await reply.challenge_quote(msg)
-        await reply.roll_result(msg, dice, guild.sch)
+        await reply.roll_result(msg, dice, guild, bot)
       
       elif dice.isHidden:
-        guild.get_gid_gdb_sch(msg, bot)
         await msg.delete()
-        await reply.roll_result(msg, dice, guild.sch)
+        await reply.roll_result(msg, dice, guild, bot)
       
       else:
         await reply.roll_result(msg, dice)
