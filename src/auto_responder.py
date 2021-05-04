@@ -5,21 +5,32 @@ import re
 class CommandAnalyzer:
   def __init__ (self):
     self.ONLY = 0
-    self.AND_TEXT_LINE = 1
-    self.AND_TEXT_BODY = 2
+    self.AND_TEXT_BODY = 1
+    self.AND_DESCRIPTION = 2
     
-    self.wordRegex = r'\s*$'
-    self.lineRegex = r'(\s+.*)?$'
-    self.textRegex = r'(\s+(.*\n*)*)?$'
+    self.whiteSpaceRegex = r'\s+'
+    self.endofWordRegex = r'\s*$'
+    self.endofLineRegex = r'(\s+.*\n?)?$'
+    self.endofTextRegex = r'(\s+(.*\n*)*)?$'
   
-  def match (self, commandRegex, msgContent, scope=None):
+  def match (self, cmdRegex, msg, scope):
     if scope == self.ONLY:
-      commandRegex += self.wordRegex
-    elif scope == self.AND_TEXT_LINE:
-      commandRegex += self.lineRegex
+      msgContent = msg.content.lower()
+      cmdRegex += self.endofWordRegex
+    
     elif scope == self.AND_TEXT_BODY:
-      commandRegex += self.textRegex
-    return re.match(commandRegex, msgContent)
+      msgContent = msg.content.lower()
+      cmdRegex += self.endofTextRegex
+    
+    elif scope == self.AND_DESCRIPTION:
+      try:
+        descStart = msg.content.index(' ')
+        msgContent = msg.content[descStart:].lower()
+        cmdRegex = self.whiteSpaceRegex + cmdRegex + self.endofLineRegex
+      except:
+        return None
+    
+    return re.match(cmdRegex, msgContent)
 
 # respostas automaticas do bot
 class AutoResponder:
@@ -47,20 +58,21 @@ class AutoResponder:
     answer = '<@'+str(msg.author.id)+'>, ' + self.legendary[option]
     return msg.channel.send(answer)
   
-  def please_quote (self, msg, bot):
+  def please_quote (self, msg, cmd, bot):
     arrowSign = ' \u27F5 '
     textBox = '\u0060'
     
     answer = '<@'+str(msg.author.id)+'>, ' + self.please
-    msgRaw = msg.content.split(' ', 1)
-
-    if (len(msgRaw) > 1) and re.match(r'\s*please\s*$', msgRaw[1]):
+    
+    if cmd.match('please', msg, cmd.AND_DESCRIPTION):
       answer = '**Legendary\'s commands**\n'
       answer += '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.\n'
       answer += textBox + 'legen!dary' + textBox + arrowSign + 'Provides useful information.\n'
       answer += textBox + 'legen!sch {#channel}' + textBox + arrowSign + 'Assigns or queries the Secret Channel.\n'
       answer += textBox + 'legen!del {option}' + textBox + arrowSign + 'Removes a record from the guild database.\n'
       answer += textBox + '[amount]{behavior}d[type]{modifier}{method}' + textBox + arrowSign + 'Rolls the dice.'
+    
+    # elif cmd.match('option', msg, cmd.AND_DESCRIPTION):
     
     return msg.channel.send(answer)
 

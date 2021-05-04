@@ -1,5 +1,4 @@
 from replit import db
-import re
 
 # banco de dados do servidor
 class GuildDB:
@@ -14,10 +13,10 @@ class GuildDB:
     if bot and ('sch' in self.gdb):
       self.sch = bot.get_channel(int(self.gdb['sch']))
 
-  def update_sch (self, msg):
+  def update_sch (self, msg, cmd):
     self.get_gid_gdb_sch(msg)
+    msg_contains_channel = cmd.match(r'<#[0-9]{18}>', msg, cmd.AND_DESCRIPTION)
 
-    msg_contains_channel = re.match(r'\s+<#[0-9]{18}>\s*$', msg.content[9:])
     if msg_contains_channel:
       secret_channel_id = msg.content.split('<#',1)[1].split('>',1)[0]      
       self.gdb['sch'] = secret_channel_id
@@ -28,11 +27,11 @@ class GuildDB:
     else:
       self.queryResult = None
 
-  def remove_record (self, msg):
+  def remove_record (self, msg, cmd):
     self.op_was_successful = False
     
     self.get_gid_gdb_sch(msg)
-    msg_contains_sch = re.match(r'\s+sch\s*$', msg.content[9:])
+    msg_contains_sch = cmd.match('sch', msg, cmd.AND_DESCRIPTION)
 
     if msg_contains_sch:
       if 'sch' in self.gdb:
