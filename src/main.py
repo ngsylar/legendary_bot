@@ -1,14 +1,15 @@
 import discord
 import os
+import gdb
+import botio
 from roll_dice import Dice
-from guild_db import GuildDB
-from auto_responder import CommandAnalyzer, AutoResponder
 from keep_alive import keep_alive
 
-cmd = CommandAnalyzer()
-reply = AutoResponder()
 bot = discord.Client()
-guild = GuildDB()
+cmd = botio.CommandAnalyzer()
+reply = botio.AutoResponder()
+user = gdb.GuildMember()
+guild = gdb.GuildDB()
 dice = Dice()
 
 @bot.event
@@ -44,7 +45,7 @@ async def on_message(msg):
 
   # definir ou consultar o canal secreto
   elif cmd.match('legen!sch', msg, cmd.AND_TEXT_BODY):
-    if msg.author.guild_permissions.manage_channels:
+    if user.is_manager(msg, guild):
       guild.update_sch(msg, cmd)
       await reply.db_query(msg, guild)
     else:
@@ -52,7 +53,7 @@ async def on_message(msg):
   
   # remover algum registro do BD do servidor
   elif cmd.match('legen!del', msg, cmd.AND_TEXT_BODY):
-    if msg.author.guild_permissions.manage_channels:
+    if user.is_manager(msg, guild):
       guild.remove_record(msg, cmd)
       await reply.op_status(msg, guild)
     else:
@@ -81,7 +82,7 @@ async def on_message(msg):
       return
   
   elif cmd.match('legen!roll', msg, cmd.ONLY):
-    if msg.author.guild_permissions.administrator:
+    if user.is_manager(msg, guild):
       dice.roll_test()
       await reply.roll_result(msg, dice)
     else:

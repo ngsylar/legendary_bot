@@ -1,7 +1,7 @@
 import re
 import random
 from collections import namedtuple
-from dice_roll_test_routine import DiceTest
+from test_routine import DiceTest
 
 class Dice:
   def __init__ (self):

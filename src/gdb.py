@@ -38,3 +38,11 @@ class GuildDB:
         del self.gdb['sch']
         db[self.gid] = self.gdb
         self.op_was_successful = True
+
+# propriedades de um membro do servidor
+class GuildMember:
+  def is_manager (self, msg, guild):
+    if msg.author.guild_permissions.administrator:
+      return True
+    else:
+      return False
