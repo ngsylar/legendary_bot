@@ -6,7 +6,7 @@ from dice_roll_test_routine import DiceTest
 class Dice:
   def __init__ (self):
     self.__compute_ith_result = namedtuple('ithDiceResult', ['simple', 'compound'])
-    self.nameRegex = r'\d+[SsHh]?[Dd]\d+(([\+\-]\d+)+e?)?(\s+(.*\n*)*)?$'
+    self.nameRegex = r'\d+[SsHh]?[Dd]\d+(([\+\-]\d+)+e?)?'
 
   # rolar dados
   def roll (self, msgContent):
@@ -57,8 +57,8 @@ class Dice:
     self.isHidden = re.match(r'[0-9]+[Hh][Dd]', msgContent)
     
     # particiona mensagem
-    msgRaw = msgContent.lower().split(' ', 1)
-    diceNameRaw = re.sub(r'[sh]', '', msgRaw[0]).split('d', 1)
+    msgRaw = msgContent.split(' ', 1)
+    diceNameRaw = re.sub(r'[sh]', '', msgRaw[0].lower()).split('d', 1)
     diceNameRaw.extend(diceNameRaw.pop().replace('-','+-').split('+',1))
     
     # separa nome do dado da mensagem embutida pelo jogador

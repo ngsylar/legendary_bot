@@ -1,11 +1,11 @@
 import discord
 import os
-import re
 from roll_dice import Dice
 from guild_db import GuildDB
-from auto_responder import AutoResponder
+from auto_responder import CommandAnalyzer, AutoResponder
 from keep_alive import keep_alive
 
+command = CommandAnalyzer()
 reply = AutoResponder()
 bot = discord.Client()
 guild = GuildDB()
@@ -30,12 +30,12 @@ async def on_message(msg):
     await reply.whoami_quote(msg)
   
   # aqui vai um proverbio lendario
-  elif re.match(r'legen!dary\s*$', msg.content):
+  elif command.match('legen!dary', msg.content, command.ONLY):
     await reply.legendary_quote(msg)
 
   # quer saber o que eu faco?
   # falta ainda: terminar essa funcao
-  elif re.match(r'legen!help\s*', msg.content):
+  elif command.match('legen!help', msg.content, command.AND_TEXT_BODY):
     await reply.please_quote(msg, bot)
 
 
@@ -44,7 +44,7 @@ async def on_message(msg):
   # falta ainda: add cargos
 
   # definir ou consultar o canal secreto
-  elif re.match(r'legen!sch\s*', msg.content):
+  elif command.match('legen!sch', msg.content, command.AND_TEXT_BODY):
     if msg.author.guild_permissions.manage_channels:
       guild.update_sch(msg)
       await reply.db_query(msg, guild)
@@ -52,7 +52,7 @@ async def on_message(msg):
       await reply.sorry_quote(msg)
   
   # remover algum registro do BD do servidor
-  elif re.match(r'legen!del\s*', msg.content):
+  elif command.match('legen!del', msg.content, command.AND_TEXT_BODY):
     if msg.author.guild_permissions.manage_channels:
       guild.remove_record(msg)
       await reply.op_status(msg, guild)
@@ -63,7 +63,7 @@ async def on_message(msg):
   # ----------------------------------------------------------------------------------------------
   # rolar dados
 
-  elif re.match(dice.nameRegex, msg.content):
+  elif command.match(dice.nameRegex, msg.content, command.AND_TEXT_BODY):
     try:
       dice.roll(msg.content)
       
@@ -81,7 +81,7 @@ async def on_message(msg):
     except:
       return
   
-  elif re.match(r'legen!roll\s*', msg.content):
+  elif command.match('legen!roll', msg.content, command.ONLY):
     if msg.author.guild_permissions.administrator:
       dice.roll_test()
       await reply.roll_result(msg, dice)

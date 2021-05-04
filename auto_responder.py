@@ -1,7 +1,27 @@
 import random
 import re
 
-# banco de dados do servidor
+# analisador de comandos
+class CommandAnalyzer:
+  def __init__ (self):
+    self.ONLY = 0
+    self.AND_TEXT_LINE = 1
+    self.AND_TEXT_BODY = 2
+    
+    self.wordRegex = r'\s*$'
+    self.lineRegex = r'(\s+.*)?$'
+    self.textRegex = r'(\s+(.*\n*)*)?$'
+  
+  def match (self, commandRegex, msgContent, scope=None):
+    if scope == self.ONLY:
+      commandRegex += self.wordRegex
+    elif scope == self.AND_TEXT_LINE:
+      commandRegex += self.lineRegex
+    elif scope == self.AND_TEXT_BODY:
+      commandRegex += self.textRegex
+    return re.match(commandRegex, msgContent)
+
+# respostas automaticas do bot
 class AutoResponder:
   def __init__ (self):
     self.whoami = 'Think of me as Yoda, only instead of being little and green, I\'m a bot and I\'m awesome. I\'m your bro: I\'m Broda!'
