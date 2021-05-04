@@ -26,7 +26,7 @@ class CommandAnalyzer:
       try:
         descStart = msg.content.index(' ')
         msgContent = msg.content[descStart:].lower()
-        cmdRegex = self.whiteSpaceRegex + cmdRegex + self.endofLineRegex
+        cmdRegex = self.whiteSpaceRegex + cmdRegex + self.endofWordRegex
       except:
         return None
     
