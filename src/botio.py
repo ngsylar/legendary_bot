@@ -7,6 +7,7 @@ class CommandAnalyzer:
     self.ONLY = 0
     self.AND_TEXT_BODY = 1
     self.AND_DESCRIPTION = 2
+    self.AND_MENTIONS = 3
     
     self.whiteSpaceRegex = r'\s+'
     self.endofWordRegex = r'\s*$'
@@ -22,14 +23,23 @@ class CommandAnalyzer:
       msgContent = msg.content.lower()
       cmdRegex += self.endofTextRegex
     
-    elif scope == self.AND_DESCRIPTION:
+    else:
       try:
         descStart = msg.content.index(' ')
         msgContent = msg.content[descStart:].lower()
-        cmdRegex = self.whiteSpaceRegex + cmdRegex + self.endofWordRegex
+        
+        if scope == self.AND_DESCRIPTION:
+          cmdRegex = self.whiteSpaceRegex + cmdRegex + self.endofWordRegex
+        
+        elif scope == self.AND_MENTIONS:
+          mentionRegex = r'(' + cmdRegex + r')'
+          newMentionRegex = r'(\s*[\s\,]\s*' + mentionRegex + r')*'
+          cmdRegex = self.whiteSpaceRegex + mentionRegex + newMentionRegex + self.endofWordRegex
+
+        else:
+          return None
       except:
         return None
-    
     return re.match(cmdRegex, msgContent)
 
 # respostas automaticas do bot
@@ -38,7 +48,7 @@ class AutoResponder:
     self.whoami = 'Think of me as Yoda, only instead of being little and green, I\'m a bot and I\'m awesome. I\'m your bro: I\'m Broda!'
     self.please = 'ha, ha! Please.'
     self.challenge = 'challenge accepted!'
-    self.sometimes = 'Sometimes we search for one thing but discover another.'
+    self.sometimes = 'sometimes we search for one thing but discover another.'
     self.sorry = 'I\'m sorry, I can\'t hear you over the sound of how awesome I am.'
     self.legendary = [
       'believe it or not, you was not always as awesome as you are today.',
@@ -88,10 +98,18 @@ class AutoResponder:
     answer = '<@'+str(msg.author.id)+'>, ' + self.sorry
     return msg.channel.send(answer)
 
-  def db_query (self, msg, guild):
+  def db_sch_query (self, msg, guild):
     arrowSign = ' \u27F5 '
     if guild.queryResult:
       answer = '<#'+guild.queryResult+'>' + arrowSign + 'The Secret Channel'
+    else:
+      answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
+    return msg.channel.send(answer)
+  
+  def db_mgmt_query (self, msg, guild):
+    arrowSign = ' \u27F5 '
+    if guild.queryResult:
+      answer = ' '.join(guild.queryResult) + arrowSign + 'The Management'
     else:
       answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
     return msg.channel.send(answer)
@@ -106,7 +124,7 @@ class AutoResponder:
   def roll_result (self, msg, dice, guild=None, bot=None):
     if (dice.isSecret or dice.isHidden) and (guild and bot):
       guild.get_gid_gdb_sch(msg, bot)
-      target_channel =  guild.sch
+      target_channel = guild.sch
       rollQuote = ''
     
     else:

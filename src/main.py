@@ -8,7 +8,7 @@ from keep_alive import keep_alive
 bot = discord.Client()
 cmd = botio.CommandAnalyzer()
 reply = botio.AutoResponder()
-user = gdb.GuildMember()
+guild_member = gdb.GuildMember()
 guild = gdb.GuildDB()
 dice = Dice()
 
@@ -45,15 +45,24 @@ async def on_message(msg):
 
   # definir ou consultar o canal secreto
   elif cmd.match('legen!sch', msg, cmd.AND_TEXT_BODY):
-    if user.is_manager(msg, guild):
+    if guild_member.is_manager(msg, guild):
       guild.update_sch(msg, cmd)
-      await reply.db_query(msg, guild)
+      await reply.db_sch_query(msg, guild)
     else:
       await reply.sorry_quote(msg)
   
+  # adicionar cargos a funcao de gerencia do canal secreto
+  elif cmd.match('legen!mgmt', msg, cmd.AND_TEXT_BODY):
+    if msg.author.guild_permissions.administrator:
+      guild.update_mgmt_roles(msg, cmd)
+      await reply.db_mgmt_query(msg, guild)
+    else:
+      await reply.sorry_quote(msg)
+
   # remover algum registro do BD do servidor
+  # editar: atualmente gerentes tem permissao para atualizar sch, mas nao deleta-lo, entretanto apenas mudar a condicao nao funcionara, afinal os gerentes nao podem modificar os membros da gerencia
   elif cmd.match('legen!del', msg, cmd.AND_TEXT_BODY):
-    if user.is_manager(msg, guild):
+    if msg.author.guild_permissions.administrator:
       guild.remove_record(msg, cmd)
       await reply.op_status(msg, guild)
     else:
@@ -82,7 +91,7 @@ async def on_message(msg):
       return
   
   elif cmd.match('legen!roll', msg, cmd.ONLY):
-    if user.is_manager(msg, guild):
+    if guild_member.is_manager(msg, guild):
       dice.roll_test()
       await reply.roll_result(msg, dice)
     else:
