@@ -100,5 +100,9 @@ async def on_message(msg):
 
   # ----------------------------------------------------------------------------------------------
 
+@bot.event
+async def on_guild_remove (guild_server):
+  guild.remove_gdb(guild_server)
+
 keep_alive()
 bot.run(os.getenv('TOKEN'))

@@ -46,7 +46,6 @@ class GuildDB:
     self.queryResult = self.gdb['mgmt']
 
   # editar: adicionar a possibilidade de excluir apenas um cargo da lista de gerentes
-  # editar: remover key quando bot for expulso do servidor
   def remove_record (self, msg, cmd):
     self.op_was_successful = False
     
@@ -67,6 +66,11 @@ class GuildDB:
         del self.gdb['mgmt']
         db[self.gid] = self.gdb
         self.op_was_successful = True
+  
+  def remove_gdb (self, guild_server):
+    guild_id = str(guild_server.id)
+    if guild_id in db.keys():
+      del db[guild_id]
 
 # propriedades de um membro do servidor
 # editar: fazer disso uma subclasse
