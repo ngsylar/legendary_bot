@@ -45,12 +45,12 @@ class CommandAnalyzer:
 # respostas automaticas do bot
 class AutoResponder:
   def __init__ (self):
-    self.whoami = 'Think of me as Yoda, only instead of being little and green, I\'m a bot and I\'m awesome. I\'m your bro: I\'m Broda!'
-    self.please = 'ha, ha! Please.'
-    self.challenge = 'challenge accepted!'
-    self.sometimes = 'sometimes we search for one thing but discover another.'
-    self.sorry = 'I\'m sorry, I can\'t hear you over the sound of how awesome I am.'
-    self.legendary = [
+    self.whoami_quote = 'Think of me as Yoda, only instead of being little and green, I\'m a bot and I\'m awesome. I\'m your bro: I\'m Broda!'
+    self.please_quote = 'ha, ha! Please.'
+    self.challenge_quote = 'challenge accepted!'
+    self.sometimes_quote = 'sometimes we search for one thing but discover another.'
+    self.sorry_quote = 'I\'m sorry, I can\'t hear you over the sound of how awesome I am.'
+    self.legendary_quote = [
       'believe it or not, you was not always as awesome as you are today.',
       'you poor thing. Having to grow up in the Insula, with the Palace right there.',
       'to succeed you have to stop to be ordinary and be legen — wait for it — dary! Legendary!',
@@ -60,42 +60,79 @@ class AutoResponder:
       'without me, it’s just aweso.'
     ]
   
-  def whoami_quote (self, msg):
-    return msg.channel.send(self.whoami)
+  def whoami (self, msg):
+    return msg.channel.send(self.whoami_quote)
 
-  def legendary_quote (self, msg):
-    option = random.randint(0, len(self.legendary))
-    answer = '<@'+str(msg.author.id)+'>, ' + self.legendary[option]
+  def legendary (self, msg):
+    quote = random.randint(0, len(self.legendary_quote))
+    answer = '<@'+str(msg.author.id)+'>, ' + self.legendary_quote[quote]
     return msg.channel.send(answer)
   
-  def please_quote (self, msg, cmd, bot):
-    arrowSign = ' \u27F5 '
-    textBox = '\u0060'
-    
-    answer = '<@'+str(msg.author.id)+'>, ' + self.please
+  def help (self, msg, cmd, bot, embedBox):
+    answer = '<@'+str(msg.author.id)+'>, ' + self.please_quote
     
     if cmd.match('please', msg, cmd.AND_DESCRIPTION):
-      answer = '**Legendary\'s commands**\n'
-      answer += '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.\n'
-      answer += textBox + 'legen!dary' + textBox + arrowSign + 'Provides useful information.\n'
-      answer += textBox + 'legen!sch {#channel}' + textBox + arrowSign + 'Assigns or queries the Secret Channel.\n'
-      answer += textBox + 'legen!del {option}' + textBox + arrowSign + 'Removes a record from the guild database.\n'
-      answer += textBox + '[amount]{behavior}d[type]{modifier}{method}' + textBox + arrowSign + 'Rolls the dice.'
-    
-    # elif cmd.match('option', msg, cmd.AND_DESCRIPTION):
-    
+      textPack = '\u0060\u0060\u0060'
+      textBox = '\u0060'
+      arrowSign = ' \u27F5 '
+
+      self.embedBox_text = ''.join([
+        'The great list of all the legendary commandments.\n\n',
+        
+        ':book: **Information**\n',
+        '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.\n',
+        textBox + 'legen!dary' + textBox + arrowSign + 'Provides useful information.\n',
+        textBox + 'legen!help <please>' + textBox + arrowSign + 'Provides a user manual.\n\n'
+        
+        ':crossed_swords: **Moderation** (role permission required)\n',
+        textBox + 'legen!sch <C>' + textBox + arrowSign + 'Queries or assigns the Secret Channel.\n',
+        textBox + 'legen!del <D>' + textBox + arrowSign + 'Removes a record from the guild database.\n\n',
+
+        '**Moderation C options**\n',
+        textBox + ' ' + textBox + arrowSign + 'Blank to reveal the Secret Channel.\n',
+        textBox + '#<channel_name>' + textBox + arrowSign + 'To update the Secret Channel.\n\n',
+        
+        '**Moderation D options**\n',
+        textBox + 'sch' + textBox + arrowSign + 'Selects the Secret Channel.\n',
+        textBox + 'mgmt' + textBox + arrowSign + 'Selects all management roles.\n\n'
+
+        ':game_die: **Gambling**\n',
+        textBox + '<amount><behavior>d<range><sum> <message>' + textBox + arrowSign + 'Rolls the dice. _Message_ is optional.\n\n'
+
+        '**Mandatory dice parameters**\n',
+        textBox + '<amount>' + textBox + arrowSign + 'Consists of an integer number from 1 to 100 of dice to be rolled.\n',
+        textBox + '<range>' + textBox + arrowSign + 'Consists of an integer number from 2 to 1000 faces of the dice to roll.\n\n',
+
+        '**Rolling dice _behavior_**\n',
+        textBox + ' ' + textBox + arrowSign + 'Blank to just roll the dice.\n',
+        textBox + 's' + textBox + arrowSign + 'To roll a secret dice whose result will be shown in the Secret Channel.\n',
+        textBox + 'h' + textBox + arrowSign + 'To roll a hidden dice whose roll command will be omitted and whose result will be shown in the Secret Channel (bot must have permission to manage the channel messages).\n\n'
+        
+        '**Dice _sum_**\n',
+        textBox + '<modifier><method>' + textBox + arrowSign + 'The _modifier_ consists of an optional arithmetic expression to be added to the dice result. If the modifier exists, the sum _method_ can be left blank to add the modifier value to the final sum of the dice, or it can be filled in with \'e\' to add the modifier value to the result of each dice rolled. See examples of correct entries:\n',
+        textPack + '2d8 to be proud of\n1d20+5\n4d20+5e\n2sd8+7e\n2hd20-1e' + textPack
+      ])
+
+      self.thumbnail_url = 'https://media.istockphoto.com/vectors/isometric-businessman-try-to-standing-on-rolling-dice-vector-id1025271320?k=6&m=1025271320&s=612x612&w=0&h=0-7C9XoTcB5JWSJFIsfUXIMtmPqJkDsZaL_5LLSu9VA='
+
+      embedBox.set_author(name='The Bro Code', icon_url=bot.user.avatar_url)
+      embedBox.set_thumbnail(url=self.thumbnail_url)
+      embedBox.description=self.embedBox_text
+      embedBox.color=0x5865f2
+      
+      return msg.channel.send(embed=embedBox)
     return msg.channel.send(answer)
 
-  def challenge_quote (self, msg):
-    answer = '<@'+str(msg.author.id)+'>, ' + self.challenge
+  def challenge (self, msg):
+    answer = '<@'+str(msg.author.id)+'>, ' + self.challenge_quote
     return msg.channel.send(answer)
   
-  def sometimes_quote (self, msg):
-    answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
+  def sometimes (self, msg):
+    answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes_quote
     return msg.channel.send(answer)
 
-  def sorry_quote (self, msg):
-    answer = '<@'+str(msg.author.id)+'>, ' + self.sorry
+  def sorry (self, msg):
+    answer = '<@'+str(msg.author.id)+'>, ' + self.sorry_quote
     return msg.channel.send(answer)
 
   def db_sch_query (self, msg, guild):
@@ -103,7 +140,7 @@ class AutoResponder:
     if guild.queryResult:
       answer = '<#'+guild.queryResult+'>' + arrowSign + 'The Secret Channel'
     else:
-      answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
+      answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes_quote
     return msg.channel.send(answer)
   
   def db_mgmt_query (self, msg, guild):
@@ -111,14 +148,14 @@ class AutoResponder:
     if guild.queryResult:
       answer = ' '.join(guild.queryResult) + arrowSign + 'The Management'
     else:
-      answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
+      answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes_quote
     return msg.channel.send(answer)
   
   def op_status (self, msg, guild):
     if guild.op_was_successful:
-      answer = '<@'+str(msg.author.id)+'>, ' + self.challenge
+      answer = '<@'+str(msg.author.id)+'>, ' + self.challenge_quote
     else:
-      answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes
+      answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes_quote
     return msg.channel.send(answer)
 
   def roll_result (self, msg, dice, guild=None, bot=None):
@@ -129,7 +166,7 @@ class AutoResponder:
     
     else:
       target_channel = msg.channel
-      rollQuote = self.challenge
+      rollQuote = self.challenge_quote
 
     if dice.playerQuote:
       rollQuote = '\"' + dice.playerQuote + '\",'

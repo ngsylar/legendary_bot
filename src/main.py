@@ -28,16 +28,17 @@ async def on_message(msg):
 
   # mencionou meu nome? vou contar-lhe quem sou
   elif str(bot.user.id) in msg.content:
-    await reply.whoami_quote(msg)
+    await reply.whoami(msg)
   
   # aqui vai um proverbio lendario
   elif cmd.match('legen!dary', msg, cmd.ONLY):
-    await reply.legendary_quote(msg)
+    await reply.legendary(msg)
 
   # quer saber o que eu faco?
   # falta ainda: terminar essa funcao
   elif cmd.match('legen!help', msg, cmd.AND_TEXT_BODY):
-    await reply.please_quote(msg, cmd, bot)
+    embedBox = discord.Embed()
+    await reply.help(msg, cmd, bot, embedBox)
 
 
   # ----------------------------------------------------------------------------------------------
@@ -49,7 +50,7 @@ async def on_message(msg):
       guild.update_sch(msg, cmd)
       await reply.db_sch_query(msg, guild)
     else:
-      await reply.sorry_quote(msg)
+      await reply.sorry(msg)
   
   # adicionar cargos a funcao de gerencia do canal secreto
   elif cmd.match('legen!mgmt', msg, cmd.AND_TEXT_BODY):
@@ -57,7 +58,7 @@ async def on_message(msg):
       guild.update_mgmt_roles(msg, cmd)
       await reply.db_mgmt_query(msg, guild)
     else:
-      await reply.sorry_quote(msg)
+      await reply.sorry(msg)
 
   # remover algum registro do BD do servidor
   # editar: atualmente gerentes tem permissao para atualizar sch, mas nao deleta-lo, entretanto apenas mudar a condicao nao funcionara, afinal os gerentes nao podem modificar os membros da gerencia
@@ -66,7 +67,7 @@ async def on_message(msg):
       guild.remove_record(msg, cmd)
       await reply.op_status(msg, guild)
     else:
-      await reply.sorry_quote(msg)
+      await reply.sorry(msg)
 
 
   # ----------------------------------------------------------------------------------------------
@@ -77,7 +78,7 @@ async def on_message(msg):
       dice.roll(msg.content)
       
       if dice.isSecret:
-        await reply.challenge_quote(msg)
+        await reply.challenge(msg)
         await reply.roll_result(msg, dice, guild, bot)
       
       elif dice.isHidden:
@@ -95,14 +96,14 @@ async def on_message(msg):
       dice.roll_test()
       await reply.roll_result(msg, dice)
     else:
-      await reply.sorry_quote(msg)
+      await reply.sorry(msg)
 
 
   # ----------------------------------------------------------------------------------------------
 
 @bot.event
 async def on_guild_remove (guild_server):
-  guild.remove_gdb(guild_server)
+  guild.remove_from_db(guild_server)
 
 keep_alive()
 bot.run(os.getenv('TOKEN'))

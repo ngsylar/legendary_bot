@@ -67,7 +67,7 @@ class GuildDB:
         db[self.gid] = self.gdb
         self.op_was_successful = True
   
-  def remove_gdb (self, guild_server):
+  def remove_from_db (self, guild_server):
     guild_id = str(guild_server.id)
     if guild_id in db.keys():
       del db[guild_id]
