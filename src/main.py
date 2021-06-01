@@ -35,7 +35,6 @@ async def on_message(msg):
     await reply.legendary(msg)
 
   # quer saber o que eu faco?
-  # falta ainda: terminar essa funcao
   elif cmd.match('legen!help', msg, cmd.AND_TEXT_BODY):
     embedBox = discord.Embed()
     await reply.help(msg, cmd, bot, embedBox)

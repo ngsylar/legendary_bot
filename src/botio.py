@@ -42,6 +42,7 @@ class CommandAnalyzer:
         return None
     return re.match(cmdRegex, msgContent)
 
+
 # respostas automaticas do bot
 class AutoResponder:
   def __init__ (self):
@@ -60,6 +61,9 @@ class AutoResponder:
       'without me, it’s just aweso.'
     ]
   
+  # ----------------------------------------------------------------------------------------------
+  # respostas padrao
+
   def whoami (self, msg):
     return msg.channel.send(self.whoami_quote)
 
@@ -82,17 +86,17 @@ class AutoResponder:
         ':book: **Information**\n',
         '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.\n',
         textBox + 'legen!dary' + textBox + arrowSign + 'Provides useful information.\n',
-        textBox + 'legen!help <please>' + textBox + arrowSign + 'Provides a user manual.\n\n'
+        textBox + 'legen!help <please>' + textBox + arrowSign + 'Provides user manual.\n\n'
         
         ':crossed_swords: **Moderation** (role permission required)\n',
         textBox + 'legen!sch <C>' + textBox + arrowSign + 'Queries or assigns the Secret Channel.\n',
         textBox + 'legen!del <D>' + textBox + arrowSign + 'Removes a record from the guild database.\n\n',
 
-        '**Moderation C options**\n',
+        '**Moderation _C_ options**\n',
         textBox + ' ' + textBox + arrowSign + 'Blank to reveal the Secret Channel.\n',
         textBox + '#<channel_name>' + textBox + arrowSign + 'To update the Secret Channel.\n\n',
         
-        '**Moderation D options**\n',
+        '**Moderation _D_ options**\n',
         textBox + 'sch' + textBox + arrowSign + 'Selects the Secret Channel.\n',
         textBox + 'mgmt' + textBox + arrowSign + 'Selects all management roles.\n\n'
 
@@ -135,6 +139,10 @@ class AutoResponder:
     answer = '<@'+str(msg.author.id)+'>, ' + self.sorry_quote
     return msg.channel.send(answer)
 
+
+  # ----------------------------------------------------------------------------------------------
+  # respostas a operacoes com banco de dados
+
   def db_sch_query (self, msg, guild):
     arrowSign = ' \u27F5 '
     if guild.queryResult:
@@ -157,6 +165,10 @@ class AutoResponder:
     else:
       answer = '<@'+str(msg.author.id)+'>, ' + self.sometimes_quote
     return msg.channel.send(answer)
+
+
+  # ----------------------------------------------------------------------------------------------
+  # respostas a rolagem de dados
 
   def roll_result (self, msg, dice, guild=None, bot=None):
     if (dice.isSecret or dice.isHidden) and (guild and bot):
