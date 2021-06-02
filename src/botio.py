@@ -95,19 +95,19 @@ class AutoResponder:
         # textBox + 'gambling' + textBox + arrowSign + 'For detailed gambling commands.\n\n',
         
         ':crossed_swords: **Moderation** (role permission required)\n',
-        textBox + 'legen!sch <C>' + textBox + arrowSign + 'Queries or assigns the Secret Channel.\n',
-        textBox + 'legen!mgmt <U>' + textBox + arrowSign + 'Queries or adds management roles\n',
-        textBox + 'legen!del <D>' + textBox + arrowSign + 'Removes a record from the guild database.\n\n',
+        textBox + 'legen!sch <option>' + textBox + arrowSign + 'Queries or assigns the Secret Channel.\n',
+        textBox + 'legen!mgmt <option>' + textBox + arrowSign + 'Queries or adds management roles\n',
+        textBox + 'legen!del <option>' + textBox + arrowSign + 'Removes a record from the guild database.\n\n',
 
-        '**Moderation _C_ options**\n',
+        '**Moderation SCH options**\n',
         textBox + ' ' + textBox + arrowSign + 'Blank to reveal the Secret Channel.\n',
         textBox + '#<channel_name>' + textBox + arrowSign + 'To update the Secret Channel.\n\n',
 
-        '**Moderation _U_ options**\n',
+        '**Moderation MGMT options**\n',
         textBox + ' ' + textBox + arrowSign + 'Blank to reveal management roles.\n',
         textBox + '@<role_name>' + textBox + arrowSign + 'To add management roles.\n\n',
         
-        '**Moderation _D_ options**\n',
+        '**Moderation deletion options**\n',
         textBox + 'sch' + textBox + arrowSign + 'Selects the Secret Channel for deletion.\n',
         textBox + 'mgmt' + textBox + arrowSign + 'Selects all management roles for deletion.\n\n',
 
