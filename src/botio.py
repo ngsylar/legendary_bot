@@ -86,19 +86,30 @@ class AutoResponder:
         ':book: **Information**\n',
         '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.\n',
         textBox + 'legen!dary' + textBox + arrowSign + 'Provides useful information.\n',
-        textBox + 'legen!help <please>' + textBox + arrowSign + 'Provides user manual.\n\n'
+        textBox + 'legen!help <please>' + textBox + arrowSign + 'Provides this user manual.\n\n',
+        # textBox + 'legen!help <option>' + textBox + arrowSign + 'For help with a specific group of commands.\n\n',
+
+        # '**Help _options_**\n',
+        # textBox + 'please' + textBox + arrowSign + 'Provides this user manual.\n',
+        # textBox + 'moderation' + textBox + arrowSign + 'For detailed moderation commands.\n',
+        # textBox + 'gambling' + textBox + arrowSign + 'For detailed gambling commands.\n\n',
         
         ':crossed_swords: **Moderation** (role permission required)\n',
         textBox + 'legen!sch <C>' + textBox + arrowSign + 'Queries or assigns the Secret Channel.\n',
+        textBox + 'legen!mgmt <U>' + textBox + arrowSign + 'Queries or adds management roles\n',
         textBox + 'legen!del <D>' + textBox + arrowSign + 'Removes a record from the guild database.\n\n',
 
         '**Moderation _C_ options**\n',
         textBox + ' ' + textBox + arrowSign + 'Blank to reveal the Secret Channel.\n',
         textBox + '#<channel_name>' + textBox + arrowSign + 'To update the Secret Channel.\n\n',
+
+        '**Moderation _U_ options**\n',
+        textBox + ' ' + textBox + arrowSign + 'Blank to reveal management roles.\n',
+        textBox + '@<role_name>' + textBox + arrowSign + 'To add management roles.\n\n',
         
         '**Moderation _D_ options**\n',
-        textBox + 'sch' + textBox + arrowSign + 'Selects the Secret Channel.\n',
-        textBox + 'mgmt' + textBox + arrowSign + 'Selects all management roles.\n\n'
+        textBox + 'sch' + textBox + arrowSign + 'Selects the Secret Channel for deletion.\n',
+        textBox + 'mgmt' + textBox + arrowSign + 'Selects all management roles for deletion.\n\n',
 
         ':game_die: **Gambling**\n',
         textBox + '<amount><behavior>d<range><sum> <message>' + textBox + arrowSign + 'Rolls the dice. _Message_ is optional.\n\n'

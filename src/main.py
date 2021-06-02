@@ -61,6 +61,7 @@ async def on_message(msg):
 
   # remover algum registro do BD do servidor
   # editar: atualmente gerentes tem permissao para atualizar sch, mas nao deleta-lo, entretanto apenas mudar a condicao nao funcionara, afinal os gerentes nao podem modificar os membros da gerencia
+  # editar: legen!del @<role_name> para remover um cargo da gerencia
   elif cmd.match('legen!del', msg, cmd.AND_TEXT_BODY):
     if msg.author.guild_permissions.administrator:
       guild.remove_record(msg, cmd)

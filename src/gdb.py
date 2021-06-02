@@ -36,10 +36,10 @@ class GuildDB:
   # editar: ver um jeito de passar o regex de mencao para a classe de cmd
   def update_mgmt_roles (self, msg, cmd):
     self.get_gid_gdb_sch(msg)
-    msg_contains_channel = cmd.match(r'(<@&[0-9]{18}>|@everyone)', msg, cmd.AND_MENTIONS)
+    msg_contains_roles = cmd.match(r'(<@&[0-9]{18}>|@everyone)', msg, cmd.AND_MENTIONS)
 
-    if msg_contains_channel:
-      mgmtRolesRaw = re.split(r'[\s\,]', msg_contains_channel.group())
+    if msg_contains_roles:
+      mgmtRolesRaw = re.split(r'[\s\,]', msg_contains_roles.group())
       self.gdb['mgmt'].extend(list(filter(None,dict.fromkeys(mgmtRolesRaw))))
       db[self.gid] = self.gdb
     
@@ -48,10 +48,9 @@ class GuildDB:
   # editar: adicionar a possibilidade de excluir apenas um cargo da lista de gerentes
   def remove_record (self, msg, cmd):
     self.op_was_successful = False
-    
     self.get_gid_gdb_sch(msg)
-    msg_contains_sch = cmd.match('sch', msg, cmd.AND_DESCRIPTION)
 
+    msg_contains_sch = cmd.match('sch', msg, cmd.AND_DESCRIPTION)
     if msg_contains_sch:
       if 'sch' in self.gdb:
         del self.gdb['sch']
@@ -60,7 +59,6 @@ class GuildDB:
       return
     
     msg_contains_mgmt = cmd.match('mgmt', msg, cmd.AND_DESCRIPTION)
-    
     if msg_contains_mgmt:
       if 'mgmt' in self.gdb:
         del self.gdb['mgmt']
@@ -83,7 +81,10 @@ class GuildMember:
       guild.get_gid_gdb_sch(msg)
 
       for role in msg.author.roles:
-        if role.name == '@everyone':
+        if role.name.lower() == 'mastermind':
+          return True
+        
+        elif role.name == '@everyone':
           refRole = role.name
         else:
           refRole = role.mention
