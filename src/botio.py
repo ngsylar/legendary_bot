@@ -104,7 +104,7 @@ class AutoResponder:
         textBox + '#<channel_name>' + textBox + arrowSign + 'To update the Secret Channel.\n\n',
 
         '**Moderation MGMT options**\n',
-        textBox + ' ' + textBox + arrowSign + 'Blank to reveal management roles. Any role called \"Mastermind\" is manager by default.\n',
+        textBox + ' ' + textBox + arrowSign + 'Blank to reveal management roles (any role called \"Mastermind\" is manager by default).\n',
         textBox + '@<role_name>' + textBox + arrowSign + 'To add management roles.\n\n',
         
         '**Moderation deletion options**\n',
