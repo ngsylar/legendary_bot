@@ -105,11 +105,12 @@ class AutoResponder:
 
         '**Moderation MGMT options**\n',
         textBox + ' ' + textBox + arrowSign + 'Blank to reveal management roles (any role called \"Mastermind\" is manager by default).\n',
-        textBox + '@<role_name>' + textBox + arrowSign + 'To add management roles.\n\n',
+        textBox + '@<role_name>' + textBox + arrowSign + 'To add management roles (you can add multiple roles simultaneously).\n\n',
         
         '**Moderation deletion options**\n',
         textBox + 'sch' + textBox + arrowSign + 'Selects the Secret Channel for deletion.\n',
         textBox + 'mgmt' + textBox + arrowSign + 'Selects all management roles for deletion.\n\n',
+        # textBox + '@<role_name>' + textBox + arrowSign + 'Select the roles to be removed from management.\n\n',
 
         ':game_die: **Gambling**\n',
         textBox + '<amount><behavior>d<range><sum> <message>' + textBox + arrowSign + 'Rolls the dice. _Message_ is optional.\n\n'
