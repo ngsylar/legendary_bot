@@ -89,6 +89,7 @@ class AutoResponder:
         textBox + 'legen!help <please>' + textBox + arrowSign + 'Provides this user manual.\n\n',
         # textBox + 'legen!help <option>' + textBox + arrowSign + 'For help with a specific group of commands.\n\n',
 
+        # # editar: precisa pensar num jeito melhor de implementar esse sumario
         # '**Help _options_**\n',
         # textBox + 'please' + textBox + arrowSign + 'Provides this user manual.\n',
         # textBox + 'moderation' + textBox + arrowSign + 'For detailed moderation commands.\n',

@@ -73,7 +73,7 @@ async def on_message(msg):
   # ----------------------------------------------------------------------------------------------
   # rolar dados
 
-  elif cmd.match(dice.nameRegex, msg, cmd.AND_TEXT_BODY):
+  elif cmd.match(dice.rollRegex, msg, cmd.AND_TEXT_BODY):
     try:
       dice.roll(msg.content)
       

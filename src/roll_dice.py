@@ -6,7 +6,7 @@ from test_routine import DiceTest
 class Dice:
   def __init__ (self):
     self.__compute_ith_result = namedtuple('ithDiceResult', ['simple', 'compound'])
-    self.nameRegex = r'\d+[SsHh]?[Dd]\d+(([\+\-]\d+)+e?)?'
+    self.rollRegex = r'\d+[SsHh]?[Dd]\d+(([\+\-]\d+)+e?)?'
 
   # rolar dados
   def roll (self, msgContent):
@@ -53,8 +53,8 @@ class Dice:
   # decodifica mensagem inserida pelo usuario
   def __decode_msg (self, msgContent):
     # define o modo de rolagem
-    self.isSecret = re.match(r'[0-9]+[Ss][Dd]', msgContent)
-    self.isHidden = re.match(r'[0-9]+[Hh][Dd]', msgContent)
+    self.isSecret = re.match(r'\d+[Ss][Dd]', msgContent)
+    self.isHidden = re.match(r'\d+[Hh][Dd]', msgContent)
     
     # particiona mensagem
     msgRaw = msgContent.split(' ', 1)
