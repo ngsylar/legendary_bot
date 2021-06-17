@@ -19,9 +19,11 @@ print(rolls)
 def rolardados():
     return 1
 
-#expression = '(((1d8+4/2+100*3.22+2d20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
-expression = '(((4/2+100*3.22+2d20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
+expression = '(((1D8+4/2+100*3,22+2D20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
+#expression = '(((4/2+100*3,22+2D20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
 #expression = '(((4/2+10*-3.2-2)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
+
+expression = '('+expression.lower().replace(',', '.')+')'
 
 diceRegex = r'([\*\/\+\-])?(\d+d\d+)'
 modifierRegex = r'([\*\/\+\-])(\d+(?:\.\d+)?)e'
@@ -39,24 +41,18 @@ modifierAddRegex = r'\+(\-?\d+(?:\.\d+)?)e'
 modifierSubRegex = r'\-(\-?\d+(?:\.\d+)?)e'
 
 def compute_arith (context, operation, result):
-    print(operation)
-#    print(result)
     context = context[:operation.start()] + str(result) + context[operation.end():]
-    print(context)
     return context
 
 matchedArith = re.search(arithContextRegex, expression)
 arithContextRaw = matchedArith[1]
-print(arithContextRaw)
 
 matched_d = re.search(diceRegex, arithContextRaw)
-print(matched_d)
 modifiersMarker = {}
 modifiersMarker['start'] = matched_d.end()
-matchedMods = re.match(modifiersRawRegex, arithContextRaw[modifiersMarker['start']:])
-modifiersMarker['end'] = matched_d.end() + matchedMods.end()
-modifiersRaw = matchedMods[0]
-print(matchedMods)
+matchedModifiers = re.match(modifiersRawRegex, arithContextRaw[modifiersMarker['start']:])
+modifiersMarker['end'] = matched_d.end() + matchedModifiers.end()
+modifiersRaw = matchedModifiers[0]
 
 # editar: aqui usar o lancamento de dado (neste trecho de codigo foi usado apenas uma substituicao simples, pois o lancamento ja foi implementado, nao sendo o foco deste teste)
 resultados = []
@@ -81,6 +77,10 @@ while 1:
         resultados_compostos -= float(mod_is_sub[1])
         modifiersRaw = compute_arith(modifiersRaw, mod_is_sub, '')
     else:
+        resultado_total_composto = resultados_compostos
+        arithContextRaw = arithContextRaw[:modifiersMarker['start']] + modifiersRaw + arithContextRaw[modifiersMarker['end']:]
+        arithContextRaw = arithContextRaw[:matched_d.start()] + (matched_d[1] or '') + str(resultado_total_composto) + arithContextRaw[matched_d.end():]
+        print(arithContextRaw)
         break
 
 
