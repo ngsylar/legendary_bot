@@ -45,65 +45,66 @@ def compute_arith (context, operation, result):
     return context
 
 matchedArith = re.search(arithContextRegex, expression)
-arithContextRaw = matchedArith[1]
+arithContext = matchedArith[1]
+print(arithContext)
 
-matched_d = re.search(diceRegex, arithContextRaw)
-modifiersMarker = {}
-modifiersMarker['start'] = matched_d.end()
-matchedModifiers = re.match(modifiersRawRegex, arithContextRaw[modifiersMarker['start']:])
-modifiersMarker['end'] = matched_d.end() + matchedModifiers.end()
-modifiersRaw = matchedModifiers[0]
+matched_d = re.search(diceRegex, arithContext)
+while matched_d:
+    modifiersMarker = {}
+    modifiersMarker['start'] = matched_d.end()
+    matchedModifiers = re.match(modifiersRawRegex, arithContext[modifiersMarker['start']:])
+    modifiersMarker['end'] = matched_d.end() + matchedModifiers.end()
+    modifiersRaw = matchedModifiers[0]
 
-# editar: aqui usar o lancamento de dado (neste trecho de codigo foi usado apenas uma substituicao simples, pois o lancamento ja foi implementado, nao sendo o foco deste teste)
-resultados = []
-resultados_simples = rolardados()
-resultados_compostos = resultados_simples
+    # editar: aqui usar o lancamento de dado (neste trecho de codigo foi usado apenas uma substituicao simples, pois o lancamento ja foi implementado, nao sendo o foco deste teste)
+    resultados = []
+    resultados_simples = rolardados()
+    resultados_compostos = resultados_simples
+    while 1:
+        mod_is_mul = re.search(modifierMulRegex, modifiersRaw)
+        mod_is_div = re.search(modifierDivRegex, modifiersRaw)
+        mod_is_add = re.search(modifierAddRegex, modifiersRaw)
+        mod_is_sub = re.search(modifierSubRegex, modifiersRaw)
+        
+        if mod_is_mul:
+            resultados_compostos *= float(mod_is_mul[1])
+            modifiersRaw = compute_arith(modifiersRaw, mod_is_mul, '')
+        elif mod_is_div:
+            resultados_compostos /= float(mod_is_div[1])
+            modifiersRaw = compute_arith(modifiersRaw, mod_is_div, '')
+        elif mod_is_add:
+            resultados_compostos += float(mod_is_add[1])
+            modifiersRaw = compute_arith(modifiersRaw, mod_is_add, '')
+        elif mod_is_sub:
+            resultados_compostos -= float(mod_is_sub[1])
+            modifiersRaw = compute_arith(modifiersRaw, mod_is_sub, '')
+        else:
+            resultado_total_composto = resultados_compostos
+            arithContext = arithContext[:modifiersMarker['start']] + modifiersRaw + arithContext[modifiersMarker['end']:]
+            arithContext = arithContext[:matched_d.start()] + (matched_d[1] or '') + str(resultado_total_composto) + arithContext[matched_d.end():]
+            print(arithContext)
+            break
+
+    matched_d = re.search(diceRegex, arithContext)
+
 while 1:
-    mod_is_mul = re.search(modifierMulRegex, modifiersRaw)
-    mod_is_div = re.search(modifierDivRegex, modifiersRaw)
-    mod_is_add = re.search(modifierAddRegex, modifiersRaw)
-    mod_is_sub = re.search(modifierSubRegex, modifiersRaw)
+    op_is_mul = re.search(arithMulRegex, arithContext)
+    op_is_div = re.search(arithDivRegex, arithContext)
+    op_is_add = re.search(arithAddRegex, arithContext)
+    op_is_sub = re.search(arithSubRegex, arithContext)
     
-    if mod_is_mul:
-        resultados_compostos *= float(mod_is_mul[1])
-        modifiersRaw = compute_arith(modifiersRaw, mod_is_mul, '')
-    elif mod_is_div:
-        resultados_compostos /= float(mod_is_div[1])
-        modifiersRaw = compute_arith(modifiersRaw, mod_is_div, '')
-    elif mod_is_add:
-        resultados_compostos += float(mod_is_add[1])
-        modifiersRaw = compute_arith(modifiersRaw, mod_is_add, '')
-    elif mod_is_sub:
-        resultados_compostos -= float(mod_is_sub[1])
-        modifiersRaw = compute_arith(modifiersRaw, mod_is_sub, '')
+    if op_is_mul:
+        mulResult = float(op_is_mul[1]) * float(op_is_mul[2])
+        arithContext = compute_arith(arithContext, op_is_mul, mulResult)
+    elif op_is_div:
+        divResult = float(op_is_div[1]) / float(op_is_div[2])
+        arithContext = compute_arith(arithContext, op_is_div, divResult)
+    elif op_is_add:
+        addResult = float(op_is_add[1]) + float(op_is_add[2])
+        arithContext = compute_arith(arithContext, op_is_add, addResult)
+    elif op_is_sub:
+        subResult = float(op_is_sub[1]) - float(op_is_sub[2])
+        arithContext = compute_arith(arithContext, op_is_sub, subResult)
     else:
-        resultado_total_composto = resultados_compostos
-        arithContextRaw = arithContextRaw[:modifiersMarker['start']] + modifiersRaw + arithContextRaw[modifiersMarker['end']:]
-        arithContextRaw = arithContextRaw[:matched_d.start()] + (matched_d[1] or '') + str(resultado_total_composto) + arithContextRaw[matched_d.end():]
-        print(arithContextRaw)
+        print(arithContext)
         break
-
-
-
-# arithContext = matchedArith.group(1)
-# print(arithContext)
-# while 1:
-#     op_is_mul = re.search(arithMulRegex, arithContext)
-#     op_is_div = re.search(arithDivRegex, arithContext)
-#     op_is_add = re.search(arithAddRegex, arithContext)
-#     op_is_sub = re.search(arithSubRegex, arithContext)
-    
-#     if op_is_mul:
-#         mulResult = float(op_is_mul[1]) * float(op_is_mul[2])
-#         arithContext = compute_arith(arithContext, op_is_mul, mulResult)
-#     elif op_is_div:
-#         divResult = float(op_is_div[1]) / float(op_is_div[2])
-#         arithContext = compute_arith(arithContext, op_is_div, divResult)
-#     elif op_is_add:
-#         addResult = float(op_is_add[1]) + float(op_is_add[2])
-#         arithContext = compute_arith(arithContext, op_is_add, addResult)
-#     elif op_is_sub:
-#         subResult = float(op_is_sub[1]) - float(op_is_sub[2])
-#         arithContext = compute_arith(arithContext, op_is_sub, subResult)
-#     else:
-#         break
