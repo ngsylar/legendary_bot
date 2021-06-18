@@ -19,32 +19,33 @@ print(rolls)
 def rolardados():
     return 1
 
-expression = '(((1D8+4/2+100*3,22+2D20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
-#expression = '(((4/2+100*3,22+2D20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
-#expression = '(((4/2+10*-3.2-2)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
-
-expression = '('+expression.lower().replace(',', '.')+')'
+expressionInput = '(((1D8+4/2+100*3,22+2D20-1each+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
+#expressionInput = '(((4/2+100*3,22+2D20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
+#expressionInput = '(((4/2+10*-3.2-2)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
 
 diceRegex = r'([\*\/\+\-])?(\d+d\d+)'
-modifierRegex = r'([\*\/\+\-])(\d+(?:\.\d+)?)e'
-modifiersRawRegex = r'(?:(?![\*\/\+\-]\-?\d+d).)*'
+#modifierRegex = r'([\*\/\+\-])(\d+(?:\.\d+)?)e'
+modifiersContextRegex = r'(?:(?![\*\/\+\-]\-?\d+d).)*'
+floatValueRegex = '(\-?\d+(?:\.\d+)?)'
 
 arithContextRegex = r'(?:\()([^()]+)(?:\))'
-arithMulRegex = r'(\-?\d+(?:\.\d+)?)\*(\-?\d+(?:\.\d+)?)'
-arithDivRegex = r'(\-?\d+(?:\.\d+)?)\/(\-?\d+(?:\.\d+)?)'
-arithAddRegex = r'(\-?\d+(?:\.\d+)?)\+(\-?\d+(?:\.\d+)?)'
-arithSubRegex = r'(\-?\d+(?:\.\d+)?)\-(\-?\d+(?:\.\d+)?)'
+arithMulRegex = floatValueRegex + r'\*' + floatValueRegex
+arithDivRegex = floatValueRegex + r'\/' + floatValueRegex
+arithAddRegex = floatValueRegex + r'\+' + floatValueRegex
+arithSubRegex = floatValueRegex + r'\-' + floatValueRegex
 
-modifierMulRegex = r'\*(\-?\d+(?:\.\d+)?)e'
-modifierDivRegex = r'\/(\-?\d+(?:\.\d+)?)e'
-modifierAddRegex = r'\+(\-?\d+(?:\.\d+)?)e'
-modifierSubRegex = r'\-(\-?\d+(?:\.\d+)?)e'
+modifierMulRegex = r'\*'+ floatValueRegex +r'e'
+modifierDivRegex = r'\/'+ floatValueRegex +r'e'
+modifierAddRegex = r'\+'+ floatValueRegex +r'e'
+modifierSubRegex = r'\-'+ floatValueRegex +r'e'
 
 def compute_arith (context, operation, result):
     context = context[:operation.start()] + str(result) + context[operation.end():]
     return context
 
-matchedArith = re.search(arithContextRegex, expression)
+expressionRaw = '('+expressionInput.lower().replace('each', 'e').replace(',', '.')+')'
+print(expressionRaw)
+matchedArith = re.search(arithContextRegex, expressionRaw)
 arithContext = matchedArith[1]
 print(arithContext)
 
@@ -52,7 +53,7 @@ matched_d = re.search(diceRegex, arithContext)
 while matched_d:
     modifiersMarker = {}
     modifiersMarker['start'] = matched_d.end()
-    matchedModifiers = re.match(modifiersRawRegex, arithContext[modifiersMarker['start']:])
+    matchedModifiers = re.match(modifiersContextRegex, arithContext[modifiersMarker['start']:])
     modifiersMarker['end'] = matched_d.end() + matchedModifiers.end()
     modifiersRaw = matchedModifiers[0]
 
