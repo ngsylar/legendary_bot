@@ -1,4 +1,4 @@
-class Regex:
+class DefaultRegexes:
     dice = r'([\*\/\+\-])?(\d+d\d+)'
     #modifier = r'([\*\/\+\-])(\d+(?:\.\d+)?)e'
     modifiersContext = r'(?:(?![\*\/\+\-]\-?\d+d).)*'
