@@ -15,7 +15,7 @@ print(expressionRaw)
 matchedArithContext = re.search(rx.arithContext, expressionRaw)
 while matchedArithContext:
     arithContext = matchedArithContext[1]
-    print(arithContext)
+    # print(arithContext)
 
     matched_d = re.search(rx.dice, arithContext)
     while matched_d:
@@ -51,7 +51,7 @@ while matchedArithContext:
                 resultado_total_composto = resultados_compostos
                 arithContext = arithContext[:modifiersContextMarker['start']] + modifiersContext + arithContext[modifiersContextMarker['end']:]
                 arithContext = arithContext[:matched_d.start()] + (matched_d[1] or '') + str(resultado_total_composto) + arithContext[matched_d.end():]
-                print(arithContext)
+                # print(arithContext)
                 break
 
         matched_d = re.search(rx.dice, arithContext)
@@ -75,9 +75,18 @@ while matchedArithContext:
             subResult = float(op_is_sub[1]) - float(op_is_sub[2])
             arithContext = compute_arith(arithContext, op_is_sub, subResult)
         else:
-            print(arithContext)
+            # print(arithContext)
             expressionRaw = expressionRaw[:matchedArithContext.start()] + arithContext + expressionRaw[matchedArithContext.end():]
             break
     
     matchedArithContext = re.search(rx.arithContext, expressionRaw)
-    print(expressionRaw)
+    # print(expressionRaw)
+
+expressionOutput = re.sub(rx.modifier, '', expressionInput).replace('.', ',')
+foundDices = re.findall(rx.diceOnly, expressionInput)
+for d in range(len(foundDices)):
+    expressionOutput = re.sub(rx.diceOnly, 'dice('+str(d+1)+')', expressionOutput, 1)
+foundOperators = list(set(re.findall(rx.operator, expressionOutput)))
+for op in foundOperators:
+    expressionOutput = expressionOutput.replace(op, ' '+op+' ')
+print(expressionOutput)
