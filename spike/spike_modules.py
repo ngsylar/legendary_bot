@@ -13,8 +13,7 @@ class DefaultRegexes:
     ARITH_ADD = FLOAT_VALUE + r'\+' + FLOAT_VALUE
     ARITH_SUB = FLOAT_VALUE + r'\-' + FLOAT_VALUE
 
-    DICE_ONLY = r'(\d+[Dd]\d+)'
-    DICE = OPERATOR + r'?(\d+d\d+)'
+    DICE = r'(\d+[Dd]\d+)'
     MODIFIER = OPERATOR + r'(\d+(?:\.\d+)?)(?i:(each|e))'
     MODIFIERS_CONTEXT = r'(?:(?![\*\/\+\-]\-?\d+d).)*'
 

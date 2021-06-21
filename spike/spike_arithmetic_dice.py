@@ -1,7 +1,7 @@
 import re
 from spike_modules import DefaultRegexes as regex, Arithmetic, DiceEffect, rolardados
 
-expressionInput = '(((1D8+4/2+100*3,22+2D20-1each+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
+expressionInput = '(((-1D8+4/2+100*3,22+2D20-1each+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
 #expressionInput = '(((4/2+100*3,22+2D20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
 #expressionInput = '(((4/2+10*-3.2-2)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
 
@@ -47,7 +47,7 @@ while matchedArithContext:
             else:
                 resultado_total_composto = resultados_compostos
                 arithContext = arithContext[:modifiersContextMarker['start']] + modifiersContext + arithContext[modifiersContextMarker['end']:]
-                arithContext = arithContext[:matched_d.start()] + (matched_d[1] or '') + str(resultado_total_composto) + arithContext[matched_d.end():]
+                arithContext = compute_arith(arithContext, matched_d, str(resultado_total_composto))
                 # print(arithContext)
                 break
 
@@ -73,12 +73,12 @@ while matchedArithContext:
             break
     
     matchedArithContext = re.search(regex.ARITH_CONTEXT, expressionRaw)
-    print(expressionRaw)
+    # print(expressionRaw)
 
 expressionOutput = re.sub(regex.MODIFIER, '', expressionInput).replace('.', ',')
-foundDices = re.findall(regex.DICE_ONLY, expressionInput)
+foundDices = re.findall(regex.DICE, expressionInput)
 for d in range(len(foundDices)):
-    expressionOutput = re.sub(regex.DICE_ONLY, 'dice('+str(d+1)+')', expressionOutput, 1)
+    expressionOutput = re.sub(regex.DICE, 'dice('+str(d+1)+')', expressionOutput, 1)
 foundOperators = list(set(re.findall(regex.OPERATOR, expressionOutput)))
 for op in foundOperators:
     expressionOutput = expressionOutput.replace(op, ' '+op+' ')
