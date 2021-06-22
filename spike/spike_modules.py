@@ -23,54 +23,60 @@ class DefaultRegexes:
     MODIFIER_SUB = r'\-'+ FLOAT_VALUE +r'e'
 
 class Arithmetic (DefaultRegexes):
+    def __init__ (self):
+        self.operation_is_not_performed = True
+
     def operator_is_mul (self, context):
-        self.operation = re.search(self.ARITH_MUL, context)
+        self.operation_raw = re.search(self.ARITH_MUL, context)
         self.__set_operation_factors()
-        return self.operation
+        return self.operation_raw
     
     def operator_is_div (self, context):
-        self.operation = re.search(self.ARITH_DIV, context)
+        self.operation_raw = re.search(self.ARITH_DIV, context)
         self.__set_operation_factors()
-        return self.operation
+        return self.operation_raw
     
     def operator_is_add (self, context):
-        self.operation = re.search(self.ARITH_ADD, context)
+        self.operation_raw = re.search(self.ARITH_ADD, context)
         self.__set_operation_factors()
-        return self.operation
+        return self.operation_raw
     
     def operator_is_sub (self, context):
-        self.operation = re.search(self.ARITH_SUB, context)
+        self.operation_raw = re.search(self.ARITH_SUB, context)
         self.__set_operation_factors()
-        return self.operation
+        return self.operation_raw
 
     def __set_operation_factors (self):
-        if self.operation:
+        if self.operation_raw:
             self.factors = [
-                float(self.operation[1]),
-                float(self.operation[2])
+                float(self.operation_raw[1]),
+                float(self.operation_raw[2])
             ]
 
 class DiceEffect (DefaultRegexes):
+    def __init__ (self):
+        self.modifier_is_not_applied = True
+
     def modifier_operator_is_mul (self, context):
-        self.modifier_effect = re.search(self.MODIFIER_MUL, context)
+        self.modifier_raw = re.search(self.MODIFIER_MUL, context)
         self.__set_modifier_value()
-        return self.modifier_effect
+        return self.modifier_raw
 
     def modifier_operator_is_div (self, context):
-        self.modifier_effect = re.search(self.MODIFIER_DIV, context)
+        self.modifier_raw = re.search(self.MODIFIER_DIV, context)
         self.__set_modifier_value()
-        return self.modifier_effect
+        return self.modifier_raw
     
     def modifier_operator_is_add (self, context):
-        self.modifier_effect = re.search(self.MODIFIER_ADD, context)
+        self.modifier_raw = re.search(self.MODIFIER_ADD, context)
         self.__set_modifier_value()
-        return self.modifier_effect
+        return self.modifier_raw
     
     def modifier_operator_is_sub (self, context):
-        self.modifier_effect = re.search(self.MODIFIER_SUB, context)
+        self.modifier_raw = re.search(self.MODIFIER_SUB, context)
         self.__set_modifier_value()
-        return self.modifier_effect
+        return self.modifier_raw
 
     def __set_modifier_value (self):
-        if self.modifier_effect:
-            self.modifier_value = float(self.modifier_effect[1])
+        if self.modifier_raw:
+            self.modifier_value = float(self.modifier_raw[1])

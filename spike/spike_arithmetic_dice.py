@@ -31,19 +31,19 @@ while matchedArithContext:
         resultados_compostos = resultados_simples
         
         current = DiceEffect()
-        while 1:
+        while current.modifier_is_not_applied:
             if current.modifier_operator_is_mul(modifiersContext):
                 resultados_compostos *= current.modifier_value
-                modifiersContext = compute_arith(modifiersContext, current.modifier_effect, '')
+                modifiersContext = compute_arith(modifiersContext, current.modifier_raw, '')
             elif current.modifier_operator_is_div(modifiersContext):
                 resultados_compostos /= current.modifier_value
-                modifiersContext = compute_arith(modifiersContext, current.modifier_effect, '')
+                modifiersContext = compute_arith(modifiersContext, current.modifier_raw, '')
             elif current.modifier_operator_is_add(modifiersContext):
                 resultados_compostos += current.modifier_value
-                modifiersContext = compute_arith(modifiersContext, current.modifier_effect, '')
+                modifiersContext = compute_arith(modifiersContext, current.modifier_raw, '')
             elif current.modifier_operator_is_sub(modifiersContext):
                 resultados_compostos -= current.modifier_value
-                modifiersContext = compute_arith(modifiersContext, current.modifier_effect, '')
+                modifiersContext = compute_arith(modifiersContext, current.modifier_raw, '')
             else:
                 resultado_total_composto = resultados_compostos
                 arithContext = arithContext[:modifiersContextMarker['start']] + modifiersContext + arithContext[modifiersContextMarker['end']:]
@@ -54,19 +54,19 @@ while matchedArithContext:
         matched_d = re.search(regex.DICE, arithContext)
 
     current = Arithmetic()
-    while 1:
+    while current.operation_is_not_performed:
         if current.operator_is_mul(arithContext):
             mulResult = current.factors[0] * current.factors[1]
-            arithContext = compute_arith(arithContext, current.operation, mulResult)
+            arithContext = compute_arith(arithContext, current.operation_raw, mulResult)
         elif current.operator_is_div(arithContext):
             divResult = current.factors[0] / current.factors[1]
-            arithContext = compute_arith(arithContext, current.operation, divResult)
+            arithContext = compute_arith(arithContext, current.operation_raw, divResult)
         elif current.operator_is_add(arithContext):
             addResult = current.factors[0] + current.factors[1]
-            arithContext = compute_arith(arithContext, current.operation, addResult)
+            arithContext = compute_arith(arithContext, current.operation_raw, addResult)
         elif current.operator_is_sub(arithContext):
             subResult = current.factors[0] - current.factors[1]
-            arithContext = compute_arith(arithContext, current.operation, subResult)
+            arithContext = compute_arith(arithContext, current.operation_raw, subResult)
         else:
             # print(arithContext)
             expressionRaw = compute_arith(expressionRaw, matchedArithContext, arithContext)
