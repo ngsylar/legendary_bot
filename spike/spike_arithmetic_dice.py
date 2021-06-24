@@ -1,82 +1,69 @@
 import re
-from spike_modules import DefaultRegexes as regex, Arithmetic, DiceEffect, rolardados
+from spike_modules import DefaultRegexes as regex, RollExpression, ArithmeticOperation, DiceModifier
 
-expressionInput = '(((-1D8+4/2+100*3,22+2D20-1each+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
+userInput = '(((-1D8+4/2+100*3,22+2D20-1each+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
 #expressionInput = '(((4/2+100*3,22+2D20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
 #expressionInput = '(((4/2+10*-3.2-2)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
 
-def compute_arith (context, operation, result):
-    context = context[:operation.start()] + str(result) + context[operation.end():]
-    return context
+def rolardados():
+    return 1
 
-expressionRaw = '('+expressionInput.lower().replace('each', 'e').replace(',', '.')+')'
-print(expressionRaw)
+expression = RollExpression(userInput, pattern_expression=True)
+print(expression.raw)
 
-matchedArithContext = re.search(regex.ARITH_CONTEXT, expressionRaw)
-while matchedArithContext:
-    arithContext = matchedArithContext[1]
-    # print(arithContext)
+while expression.has_inner_expression():
+    innerExpression = RollExpression(expression.inner_expression_raw)
 
-    matched_d = re.search(regex.DICE, arithContext)
-    while matched_d:
-        modifiersContextMarker = {}
-        modifiersContextMarker['start'] = matched_d.end()
-        matchedModifiersContext = re.match(regex.MODIFIERS_CONTEXT, arithContext[modifiersContextMarker['start']:])
-        modifiersContextMarker['end'] = matched_d.end() + matchedModifiersContext.end()
-        modifiersContext = matchedModifiersContext[0]
+    while innerExpression.has_dice():
+        modifiers = RollExpression(innerExpression.dice_modifiers.raw)
 
         # editar: aqui usar o lancamento de dado (neste trecho de codigo foi usado apenas uma substituicao simples, pois o lancamento ja foi implementado, nao sendo o foco deste teste)
         resultados = []
         resultados_simples = rolardados()
         resultados_compostos = resultados_simples
         
-        current = DiceEffect()
+        current = DiceModifier()
         while current.modifier_is_not_applied:
-            if current.modifier_operator_is_mul(modifiersContext):
+            if current.modifier_operator_is_mul(modifiers.raw):
                 resultados_compostos *= current.modifier_value
-                modifiersContext = compute_arith(modifiersContext, current.modifier_raw, '')
-            elif current.modifier_operator_is_div(modifiersContext):
+                modifiers.replace(current.modifier, '')
+            elif current.modifier_operator_is_div(modifiers.raw):
                 resultados_compostos /= current.modifier_value
-                modifiersContext = compute_arith(modifiersContext, current.modifier_raw, '')
-            elif current.modifier_operator_is_add(modifiersContext):
+                modifiers.replace(current.modifier, '')
+            elif current.modifier_operator_is_add(modifiers.raw):
                 resultados_compostos += current.modifier_value
-                modifiersContext = compute_arith(modifiersContext, current.modifier_raw, '')
-            elif current.modifier_operator_is_sub(modifiersContext):
+                modifiers.replace(current.modifier, '')
+            elif current.modifier_operator_is_sub(modifiers.raw):
                 resultados_compostos -= current.modifier_value
-                modifiersContext = compute_arith(modifiersContext, current.modifier_raw, '')
+                modifiers.replace(current.modifier, '')
             else:
                 resultado_total_composto = resultados_compostos
-                arithContext = arithContext[:modifiersContextMarker['start']] + modifiersContext + arithContext[modifiersContextMarker['end']:]
-                arithContext = compute_arith(arithContext, matched_d, str(resultado_total_composto))
-                # print(arithContext)
+                innerExpression.replace(innerExpression.dice_modifiers, modifiers.raw)
+                innerExpression.replace(innerExpression.inner_dice_match, resultado_total_composto)
                 break
 
-        matched_d = re.search(regex.DICE, arithContext)
-
-    current = Arithmetic()
+    current = ArithmeticOperation()
     while current.operation_is_not_performed:
-        if current.operator_is_mul(arithContext):
-            mulResult = current.factors[0] * current.factors[1]
-            arithContext = compute_arith(arithContext, current.operation_raw, mulResult)
-        elif current.operator_is_div(arithContext):
-            divResult = current.factors[0] / current.factors[1]
-            arithContext = compute_arith(arithContext, current.operation_raw, divResult)
-        elif current.operator_is_add(arithContext):
-            addResult = current.factors[0] + current.factors[1]
-            arithContext = compute_arith(arithContext, current.operation_raw, addResult)
-        elif current.operator_is_sub(arithContext):
-            subResult = current.factors[0] - current.factors[1]
-            arithContext = compute_arith(arithContext, current.operation_raw, subResult)
+        if current.operator_is_mul(innerExpression.raw):
+            opResult = current.factors[0] * current.factors[1]
+            innerExpression.replace(current.operation, opResult)
+        elif current.operator_is_div(innerExpression.raw):
+            opResult = current.factors[0] / current.factors[1]
+            innerExpression.replace(current.operation, opResult)
+        elif current.operator_is_add(innerExpression.raw):
+            opResult = current.factors[0] + current.factors[1]
+            innerExpression.replace(current.operation, opResult)
+        elif current.operator_is_sub(innerExpression.raw):
+            opResult = current.factors[0] - current.factors[1]
+            innerExpression.replace(current.operation, opResult)
         else:
-            # print(arithContext)
-            expressionRaw = compute_arith(expressionRaw, matchedArithContext, arithContext)
+            expression.replace(expression.inner_expression, innerExpression.raw)
             break
     
-    matchedArithContext = re.search(regex.ARITH_CONTEXT, expressionRaw)
-    # print(expressionRaw)
+    print(expression.raw)
 
-expressionOutput = re.sub(regex.MODIFIER, '', expressionInput).replace('.', ',')
-foundDices = re.findall(regex.DICE, expressionInput)
+expressionOutput = re.sub(regex.MODIFIER, '', userInput).replace('.', ',')
+foundDices = re.findall(regex.DICE, userInput)
 for d in range(len(foundDices)):
     expressionOutput = re.sub(regex.DICE, 'dice('+str(d+1)+')', expressionOutput, 1)
 foundOperators = list(set(re.findall(regex.OPERATOR, expressionOutput)))
