@@ -61,33 +61,39 @@ class Modifier (DefaultRegexes):
             self.modifier_value = float(self.modifier_match[1])
 
 
+# class Dice:
+
+
+
 class Expression (DefaultRegexes):
-    def __init__ (self, expression, pattern_expression=False):
-        if pattern_expression:
-            self.expression = '('+expression.lower().replace('each', 'e').replace(',', '.')+')'
+    def __init__ (self, raw, position=None, is_pattern=False):
+        if is_pattern:
+            self.raw = '('+raw.lower().replace('each', 'e').replace(',', '.')+')'
         else:
-            self.expression = expression
+            self.raw = raw
+        if position:
+            self.position = position
     
     def has_inner_expression (self):
-        self.inner_expression_match = re.search(self.ARITH_EXPRESSION, self.expression)
+        self.inner_expression_match = re.search(self.ARITH_EXPRESSION, self.raw)
         if self.inner_expression_match:
             self.inner_expression_raw = self.inner_expression_match[1]
         return self.inner_expression_match
     
     def has_dice (self):
-        self.inner_dice_match = re.search(self.DICE, self.expression)
+        self.inner_dice_match = re.search(self.DICE, self.raw)
         if self.inner_dice_match:
             position_adjust = self.inner_dice_match.end()
-            dice_modifiers_match = re.match(self.MODIFIERS_RAW, self.expression[position_adjust:])
+            dice_modifiers_match = re.match(self.MODIFIERS_RAW, self.raw[position_adjust:])
             self.dice_modifiers_raw = dice_modifiers_match[0]
             self.dice_modifiers_position = {
                 'start': dice_modifiers_match.start() + position_adjust,
                 'end': dice_modifiers_match.end() + position_adjust}
         return self.inner_dice_match
 
-    def replace (self, operation, result):
-        if type(operation) == re.Match:
-            self.expression = self.expression[:operation.start()] + str(result) + self.expression[operation.end():]
-        elif type(operation) == dict:
-            self.expression = self.expression[:operation['start']] + str(result) + self.expression[operation['end']:]
-        return self.expression
+    def replace (self, position, replacement):
+        if type(position) == re.Match:
+            self.raw = self.raw[:position.start()] + str(replacement) + self.raw[position.end():]
+        elif type(position) == dict:
+            self.raw = self.raw[:position['start']] + str(replacement) + self.raw[position['end']:]
+        return self.raw
