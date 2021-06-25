@@ -45,7 +45,7 @@ while expression.has_inner_expression():
                 modifiers.replace(current.modifier_match, '')
             else:
                 resultado_total_composto = resultados_compostos
-                innerExpression.replace(innerExpression.dice_modifiers_position, modifiers.raw)
+                innerExpression.replace(modifiers.position, modifiers.raw)
                 innerExpression.replace(innerExpression.inner_dice_match, resultado_total_composto)
                 break
 
@@ -64,7 +64,7 @@ while expression.has_inner_expression():
             opResult = current.factors[0] - current.factors[1]
             innerExpression.replace(current.operation_match, opResult)
         else:
-            expression.replace(expression.inner_expression_match, innerExpression.raw)
+            expression.replace(innerExpression.position, innerExpression.raw)
             break
     
     print(expression.raw)
