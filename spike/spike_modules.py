@@ -89,19 +89,6 @@ class DiceModifier (DefaultRegexes):
 
 
 class RollExpression (DefaultRegexes):
-    class __InnerModifier (DefaultRegexes):
-        def __init__ (self, overall_expression, dice_match):
-            position_adjust = dice_match.end()
-            match = re.match(self.MODIFIERS_RAW, overall_expression[position_adjust:])
-            self.__position_start = match.start() + position_adjust
-            self.__position_end = match.end() + position_adjust
-            self.raw = match[0]
-        
-        def start (self):
-            return self.__position_start
-        def end (self):
-            return self.__position_end
-
     def __init__ (self, expression, pattern_expression=False):
         if pattern_expression:
             self.expression = '('+expression.lower().replace('each', 'e').replace(',', '.')+')'
@@ -117,11 +104,19 @@ class RollExpression (DefaultRegexes):
     def has_dice (self):
         self.inner_dice_match = re.search(self.DICE, self.expression)
         if self.inner_dice_match:
-            self.dice_modifiers = self.__InnerModifier(self.expression, self.inner_dice_match)
+            position_adjust = self.inner_dice_match.end()
+            dice_modifiers_match = re.match(self.MODIFIERS_RAW, self.expression[position_adjust:])
+            self.dice_modifiers_raw = dice_modifiers_match[0]
+            self.dice_modifiers_position = {
+                'start': dice_modifiers_match.start() + position_adjust,
+                'end': dice_modifiers_match.end() + position_adjust}
         return self.inner_dice_match
 
     def replace (self, operation, result):
-        self.expression = self.expression[:operation.start()] + str(result) + self.expression[operation.end():]
+        if type(operation) == re.Match:
+            self.expression = self.expression[:operation.start()] + str(result) + self.expression[operation.end():]
+        elif type(operation) == dict:
+            self.expression = self.expression[:operation['start']] + str(result) + self.expression[operation['end']:]
         return self.expression
 
     @property
@@ -130,7 +125,3 @@ class RollExpression (DefaultRegexes):
     @raw.setter
     def raw (self, value):
         self.expression = value
-    
-    @property
-    def inner_expression (self):
-        return self.inner_expression_match

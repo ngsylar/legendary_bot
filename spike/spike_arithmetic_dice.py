@@ -15,7 +15,7 @@ while expression.has_inner_expression():
     innerExpression = RollExpression(expression.inner_expression_raw)
 
     while innerExpression.has_dice():
-        modifiers = RollExpression(innerExpression.dice_modifiers.raw)
+        modifiers = RollExpression(innerExpression.dice_modifiers_raw)
 
         # editar: aqui usar o lancamento de dado (neste trecho de codigo foi usado apenas uma substituicao simples, pois o lancamento ja foi implementado, nao sendo o foco deste teste)
         resultados = []
@@ -38,7 +38,7 @@ while expression.has_inner_expression():
                 modifiers.replace(current.modifier, '')
             else:
                 resultado_total_composto = resultados_compostos
-                innerExpression.replace(innerExpression.dice_modifiers, modifiers.raw)
+                innerExpression.replace(innerExpression.dice_modifiers_position, modifiers.raw)
                 innerExpression.replace(innerExpression.inner_dice_match, resultado_total_composto)
                 break
 
@@ -57,7 +57,7 @@ while expression.has_inner_expression():
             opResult = current.factors[0] - current.factors[1]
             innerExpression.replace(current.operation, opResult)
         else:
-            expression.replace(expression.inner_expression, innerExpression.raw)
+            expression.replace(expression.inner_expression_match, innerExpression.raw)
             break
     
     print(expression.raw)
