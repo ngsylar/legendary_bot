@@ -1,5 +1,5 @@
 import re
-import spike_arithmetic
+import spike_arith
 from spike_regexes import DefaultRegexes as regex
 
 userInput = '(((-1D8+4/2+100*3,22+2D20-1each+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
@@ -9,7 +9,7 @@ userInput = '(((-1D8+4/2+100*3,22+2D20-1each+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+
 def rolardados():
     return 1
 
-expression = spike_arithmetic.Expression(
+expression = spike_arith.Expression(
     raw = userInput,
     is_pattern = True)
 print(expression.raw)
@@ -45,8 +45,6 @@ while expression.has_inner_expression():
                 innerExpression.replace(innerExpression.inner_dice_match, resultado_total_composto)
                 break
 
-    # current = spike_arithmetic.Operation()
-    # while current.operation_is_not_performed:
     while innerExpression.has_operation():
         operation = innerExpression.current_operation
         if operation.is_mul():
