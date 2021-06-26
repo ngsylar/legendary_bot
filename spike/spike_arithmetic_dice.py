@@ -3,8 +3,8 @@ import spike_arithmetic
 from spike_regexes import DefaultRegexes as regex
 
 userInput = '(((-1D8+4/2+100*3,22+2D20-1each+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
-#expressionInput = '(((4/2+100*3,22+2D20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
-#expressionInput = '(((4/2+10*-3.2-2)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
+# userInput = '(((4/2+100*3,22+2D20-1e+1*2e-2+1d8)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
+# userInput = '(((4/2+10*-3.2-2)*2+(1+3)/(2+2-(1+1))+4)+2)/2'
 
 def rolardados():
     return 1
@@ -41,24 +41,26 @@ while expression.has_inner_expression():
                 innerDice.clear_modifier(modifier)
             else:
                 resultado_total_composto = resultados_compostos
-                innerExpression.replace(innerDice.modifiers_address, modifier.overall_exp)
+                innerExpression.replace(innerDice.modifiers_address, innerDice.modifiers_raw)
                 innerExpression.replace(innerExpression.inner_dice_match, resultado_total_composto)
                 break
 
-    current = spike_arithmetic.Operation()
-    while current.operation_is_not_performed:
-        if current.operator_is_mul(innerExpression.raw):
-            opResult = current.factors[0] * current.factors[1]
-            innerExpression.replace(current.operation_match, opResult)
-        elif current.operator_is_div(innerExpression.raw):
-            opResult = current.factors[0] / current.factors[1]
-            innerExpression.replace(current.operation_match, opResult)
-        elif current.operator_is_add(innerExpression.raw):
-            opResult = current.factors[0] + current.factors[1]
-            innerExpression.replace(current.operation_match, opResult)
-        elif current.operator_is_sub(innerExpression.raw):
-            opResult = current.factors[0] - current.factors[1]
-            innerExpression.replace(current.operation_match, opResult)
+    # current = spike_arithmetic.Operation()
+    # while current.operation_is_not_performed:
+    while innerExpression.has_operation():
+        operation = innerExpression.current_operation
+        if operation.is_mul():
+            opResult = operation.factors['left'] * operation.factors['right']
+            innerExpression.replace(operation.match, opResult)
+        elif operation.is_div():
+            opResult = operation.factors['left'] / operation.factors['right']
+            innerExpression.replace(operation.match, opResult)
+        elif operation.is_add():
+            opResult = operation.factors['left'] + operation.factors['right']
+            innerExpression.replace(operation.match, opResult)
+        elif operation.is_sub():
+            opResult = operation.factors['left'] - operation.factors['right']
+            innerExpression.replace(operation.match, opResult)
         else:
             expression.replace(innerExpression.address, innerExpression.raw)
             break

@@ -2,34 +2,34 @@ import re
 from spike_regexes import DefaultRegexes
 
 class Operation (DefaultRegexes):
-    def __init__ (self):
-        self.operation_is_not_performed = True
+    def __init__ (self, overall_exp):
+        self.overall_exp = overall_exp
 
-    def operator_is_mul (self, expression):
-        self.operation_match = re.search(self.ARITH_MUL, expression)
+    def is_mul (self):
+        self.match = re.search(self.ARITH_MUL, self.overall_exp)
         self.__set_operation_factors()
-        return self.operation_match
+        return self.match
     
-    def operator_is_div (self, expression):
-        self.operation_match = re.search(self.ARITH_DIV, expression)
+    def is_div (self):
+        self.match = re.search(self.ARITH_DIV, self.overall_exp)
         self.__set_operation_factors()
-        return self.operation_match
+        return self.match
     
-    def operator_is_add (self, expression):
-        self.operation_match = re.search(self.ARITH_ADD, expression)
+    def is_add (self):
+        self.match = re.search(self.ARITH_ADD, self.overall_exp)
         self.__set_operation_factors()
-        return self.operation_match
+        return self.match
     
-    def operator_is_sub (self, expression):
-        self.operation_match = re.search(self.ARITH_SUB, expression)
+    def is_sub (self):
+        self.match = re.search(self.ARITH_SUB, self.overall_exp)
         self.__set_operation_factors()
-        return self.operation_match
+        return self.match
 
     def __set_operation_factors (self):
-        if self.operation_match:
-            self.factors = [
-                float(self.operation_match[1]),
-                float(self.operation_match[2])]
+        if self.match:
+            self.factors = {
+                'left': float(self.match[1]),
+                'right': float(self.match[2])}
 
 
 class Modifier (DefaultRegexes):
@@ -97,6 +97,11 @@ class Expression (DefaultRegexes):
             return Expression(
                 raw = self.__inner_expression_match[1],
                 address = self.__inner_expression_match)
+    
+    def has_operation (self):
+        self.current_operation = Operation(
+            overall_exp = self.raw)
+        return True
 
     def has_dice (self):
         self.inner_dice_match = re.search(self.DICE, self.raw)
