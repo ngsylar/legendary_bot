@@ -10,42 +10,38 @@ def rolardados():
     return 1
 
 expression = spike_arithmetic.Expression(
-    raw=userInput,
-    is_pattern=True)
+    raw = userInput,
+    is_pattern = True)
 print(expression.raw)
 
 while expression.has_inner_expression():
-    innerExpression = spike_arithmetic.Expression(
-        raw=expression.inner_expression_raw,
-        position=expression.inner_expression_match)
+    innerExpression = expression.inner_expression
 
     while innerExpression.has_dice():
-        modifiers = spike_arithmetic.Expression(
-            raw=innerExpression.dice_modifiers_raw,
-            position=innerExpression.dice_modifiers_position)
+        innerDice = innerExpression.inner_dice
 
         # editar: aqui usar o lancamento de dado (neste trecho de codigo foi usado apenas uma substituicao simples, pois o lancamento ja foi implementado, nao sendo o foco deste teste)
         resultados = []
         resultados_simples = rolardados()
         resultados_compostos = resultados_simples
         
-        current = spike_arithmetic.Modifier()
-        while current.modifier_is_not_applied:
-            if current.modifier_operator_is_mul(modifiers.raw):
-                resultados_compostos *= current.modifier_value
-                modifiers.replace(current.modifier_match, '')
-            elif current.modifier_operator_is_div(modifiers.raw):
-                resultados_compostos /= current.modifier_value
-                modifiers.replace(current.modifier_match, '')
-            elif current.modifier_operator_is_add(modifiers.raw):
-                resultados_compostos += current.modifier_value
-                modifiers.replace(current.modifier_match, '')
-            elif current.modifier_operator_is_sub(modifiers.raw):
-                resultados_compostos -= current.modifier_value
-                modifiers.replace(current.modifier_match, '')
+        while innerDice.has_modifier():
+            modifier = innerDice.current_modifier
+            if modifier.operator_is_mul():
+                resultados_compostos *= modifier.value
+                innerDice.clear_modifier(modifier)
+            elif modifier.operator_is_div():
+                resultados_compostos /= modifier.value
+                innerDice.clear_modifier(modifier)
+            elif modifier.operator_is_add():
+                resultados_compostos += modifier.value
+                innerDice.clear_modifier(modifier)
+            elif modifier.operator_is_sub():
+                resultados_compostos -= modifier.value
+                innerDice.clear_modifier(modifier)
             else:
                 resultado_total_composto = resultados_compostos
-                innerExpression.replace(modifiers.position, modifiers.raw)
+                innerExpression.replace(innerDice.modifiers_address, modifier.overall_exp)
                 innerExpression.replace(innerExpression.inner_dice_match, resultado_total_composto)
                 break
 
@@ -64,7 +60,7 @@ while expression.has_inner_expression():
             opResult = current.factors[0] - current.factors[1]
             innerExpression.replace(current.operation_match, opResult)
         else:
-            expression.replace(innerExpression.position, innerExpression.raw)
+            expression.replace(innerExpression.address, innerExpression.raw)
             break
     
     print(expression.raw)

@@ -33,67 +33,91 @@ class Operation (DefaultRegexes):
 
 
 class Modifier (DefaultRegexes):
-    def __init__ (self):
-        self.modifier_is_not_applied = True
+    def __init__ (self, overall_exp):
+        self.overall_exp = overall_exp
 
-    def modifier_operator_is_mul (self, expression_raw):
-        self.modifier_match = re.search(self.MODIFIER_MUL, expression_raw)
-        self.__set_modifier_value()
-        return self.modifier_match
+    def operator_is_mul (self):
+        self.match = re.search(self.MODIFIER_MUL, self.overall_exp)
+        self.__set_value()
+        return self.match
 
-    def modifier_operator_is_div (self, expression_raw):
-        self.modifier_match = re.search(self.MODIFIER_DIV, expression_raw)
-        self.__set_modifier_value()
-        return self.modifier_match
+    def operator_is_div (self):
+        self.match = re.search(self.MODIFIER_DIV, self.overall_exp)
+        self.__set_value()
+        return self.match
     
-    def modifier_operator_is_add (self, expression_raw):
-        self.modifier_match = re.search(self.MODIFIER_ADD, expression_raw)
-        self.__set_modifier_value()
-        return self.modifier_match
+    def operator_is_add (self):
+        self.match = re.search(self.MODIFIER_ADD, self.overall_exp)
+        self.__set_value()
+        return self.match
     
-    def modifier_operator_is_sub (self, expression_raw):
-        self.modifier_match = re.search(self.MODIFIER_SUB, expression_raw)
-        self.__set_modifier_value()
-        return self.modifier_match
+    def operator_is_sub (self):
+        self.match = re.search(self.MODIFIER_SUB, self.overall_exp)
+        self.__set_value()
+        return self.match
 
-    def __set_modifier_value (self):
-        if self.modifier_match:
-            self.modifier_value = float(self.modifier_match[1])
+    def __set_value (self):
+        if self.match:
+            self.value = float(self.match[1])
 
 
-# class Dice:
-
+class Dice (DefaultRegexes):
+    def __init__ (self, name, address, modifiers_raw, modifiers_address):
+        self.name = name
+        self.address = address
+        self.modifiers_raw = modifiers_raw
+        self.modifiers_address = modifiers_address
+    
+    def has_modifier (self):
+        self.current_modifier = Modifier(
+            overall_exp = self.modifiers_raw)
+        return True
+    
+    def clear_modifier (self, modifier):
+        address = modifier.match
+        self.modifiers_raw = self.modifiers_raw[:address.start()] + self.modifiers_raw[address.end():]
 
 
 class Expression (DefaultRegexes):
-    def __init__ (self, raw, position=None, is_pattern=False):
+    def __init__ (self, raw, address=None, is_pattern=False):
         if is_pattern:
             self.raw = '('+raw.lower().replace('each', 'e').replace(',', '.')+')'
         else:
             self.raw = raw
-        if position:
-            self.position = position
+        if address:
+            self.address = address
     
     def has_inner_expression (self):
-        self.inner_expression_match = re.search(self.ARITH_EXPRESSION, self.raw)
-        if self.inner_expression_match:
-            self.inner_expression_raw = self.inner_expression_match[1]
-        return self.inner_expression_match
+        self.__inner_expression_match = re.search(self.ARITH_EXPRESSION, self.raw)
+        return self.__inner_expression_match
     
+    @property
+    def inner_expression (self):
+        if self.__inner_expression_match:
+            return Expression(
+                raw = self.__inner_expression_match[1],
+                address = self.__inner_expression_match)
+
     def has_dice (self):
         self.inner_dice_match = re.search(self.DICE, self.raw)
-        if self.inner_dice_match:
-            position_adjust = self.inner_dice_match.end()
-            dice_modifiers_match = re.match(self.MODIFIERS_RAW, self.raw[position_adjust:])
-            self.dice_modifiers_raw = dice_modifiers_match[0]
-            self.dice_modifiers_position = {
-                'start': dice_modifiers_match.start() + position_adjust,
-                'end': dice_modifiers_match.end() + position_adjust}
         return self.inner_dice_match
+    
+    @property
+    def inner_dice (self):
+        if self.inner_dice_match:
+            address_adjust = self.inner_dice_match.end()
+            dice_modifiers_match = re.match(self.MODIFIERS_RAW, self.raw[address_adjust:])
+            return Dice(
+                name = self.inner_dice_match[1],
+                address = self.inner_dice_match,
+                modifiers_raw = dice_modifiers_match[0],
+                modifiers_address = {
+                    'start': dice_modifiers_match.start() + address_adjust,
+                    'end': dice_modifiers_match.end() + address_adjust})
 
-    def replace (self, position, replacement):
-        if type(position) == re.Match:
-            self.raw = self.raw[:position.start()] + str(replacement) + self.raw[position.end():]
-        elif type(position) == dict:
-            self.raw = self.raw[:position['start']] + str(replacement) + self.raw[position['end']:]
+    def replace (self, address, replacement):
+        if type(address) == re.Match:
+            self.raw = self.raw[:address.start()] + str(replacement) + self.raw[address.end():]
+        elif type(address) == dict:
+            self.raw = self.raw[:address['start']] + str(replacement) + self.raw[address['end']:]
         return self.raw
