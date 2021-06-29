@@ -2,7 +2,8 @@ import discord
 import os
 import gdb
 import botio
-from roll_dice import Dice
+from regexes import DefaultRegexes as regex
+from p_action import PlayerAction
 from keep_alive import keep_alive
 
 bot = discord.Client()
@@ -10,7 +11,7 @@ cmd = botio.CommandAnalyzer()
 reply = botio.AutoResponder()
 guild_member = gdb.GuildMember()
 guild = gdb.GuildDB()
-dice = Dice()
+action = PlayerAction()
 
 @bot.event
 async def on_ready():
@@ -73,30 +74,26 @@ async def on_message(msg):
   # ----------------------------------------------------------------------------------------------
   # rolar dados
 
-  elif cmd.match(dice.rollRegex, msg, cmd.AND_TEXT_BODY):
+  elif cmd.match(regex.DICE_ROLL, msg, cmd.UNSCOPED):
+    await msg.channel.send(':warning: BOT UNDER MAINTENANCE :warning:')
     try:
-      dice.roll(msg.content)
+      action.compute(msg.content)
+      await msg.channel.send(action.output_msg)
+    #   dice.roll(msg.content)
       
-      if dice.isSecret:
-        await reply.challenge(msg)
-        await reply.roll_result(msg, dice, guild, bot)
+    #   if dice.isSecret:
+    #     await reply.challenge(msg)
+    #     await reply.roll_result(msg, dice, guild, bot)
       
-      elif dice.isHidden:
-        await msg.delete()
-        await reply.roll_result(msg, dice, guild, bot)
+    #   elif dice.isHidden:
+    #     await msg.delete()
+    #     await reply.roll_result(msg, dice, guild, bot)
       
-      else:
-        await reply.roll_result(msg, dice)
+    #   else:
+    #     await reply.roll_result(msg, dice)
     
     except:
       return
-  
-  elif cmd.match('legen!roll', msg, cmd.ONLY):
-    if guild_member.is_manager(msg, guild):
-      dice.roll_test()
-      await reply.roll_result(msg, dice)
-    else:
-      await reply.sorry(msg)
 
 
   # ----------------------------------------------------------------------------------------------

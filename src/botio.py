@@ -3,19 +3,23 @@ import re
 
 # analisador de comandos
 class CommandAnalyzer:
-  def __init__ (self):
-    self.ONLY = 0
-    self.AND_TEXT_BODY = 1
-    self.AND_DESCRIPTION = 2
-    self.AND_MENTIONS = 3
-    
-    self.whiteSpaceRegex = r'\s+'
-    self.endofWordRegex = r'\s*$'
-    self.endofLineRegex = r'(\s+.*\n?)?$'
-    self.endofTextRegex = r'(\s+(.*\n*)*)?$'
+  ONLY = 0
+  AND_TEXT_BODY = 1
+  AND_DESCRIPTION = 2
+  AND_MENTIONS = 3
+  UNSCOPED = 4
+  
+  # editar: substituir o uso desses regex pelos da classe DefaultRegexes
+  whiteSpaceRegex = r'\s+'
+  endofWordRegex = r'\s*$'
+  endofLineRegex = r'(\s+.*\n?)?$'
+  endofTextRegex = r'(\s+(.*\n*)*)?$'
   
   def match (self, cmdRegex, msg, scope):
-    if scope == self.ONLY:
+    if scope == self.UNSCOPED:
+      msgContent = msg.content
+    
+    elif scope == self.ONLY:
       msgContent = msg.content.lower()
       cmdRegex += self.endofWordRegex
     

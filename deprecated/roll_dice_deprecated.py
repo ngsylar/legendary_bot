@@ -1,12 +1,14 @@
 import re
 import random
 from collections import namedtuple
-from test_routine import DiceTest
 
 class Dice:
   def __init__ (self):
     self.__compute_ith_result = namedtuple('ithDiceResult', ['simple', 'compound'])
-    self.rollRegex = r'\d+[SsHh]?[Dd]\d+(([\+\-]\d+)+e?)?'
+    # self.__compute_ith_dice = namedtuple('diceTuple', ['amount', 'faces', 'modifier', 'results'])
+    self.diceRegex = r'\d+[SsHh]?[Dd]\d+'
+    self.modifierRegex = r'\d+e?'
+    self.rollCmdRegex = r'[+\-*\/()\d]*' + self.diceRegex
 
   # rolar dados
   def roll (self, msgContent):
@@ -25,71 +27,64 @@ class Dice:
     self.__find_extreme_vals()
     self.__arrange_results()
 
-  # rotina de testes de rolagem
-  def roll_test (self):
-    diceTest = DiceTest()
-    testRoutine = diceTest.define_routine()
-    
-    testOutput = ''
-    for dice_i in testRoutine:
-      self.__decode_msg(dice_i.name)
-      
-      self.results = []
-      for diceiResult in dice_i.results:
-        self.results.append(self.__compute_ith_result(
-          simple = diceiResult,
-          compound = diceiResult + self.sumTerm))
-      
-      self.__compute_sum()
-      self.__find_extreme_vals()
-      self.__arrange_results()
-      testOutput += self.rollResults + '\n\n'
-    
-    if diceTest.validate_response(testOutput):
-      self.rollResults = testOutput + ':white_check_mark: Nailed it!'
-    else:
-      self.rollResults = testOutput + ':warning: WRONG! Wrong, wrong, wrong, wrong, wrong!'
-  
   # decodifica mensagem inserida pelo usuario
   def __decode_msg (self, msgContent):
-    # define o modo de rolagem
-    self.isSecret = re.match(r'\d+[Ss][Dd]', msgContent)
-    self.isHidden = re.match(r'\d+[Hh][Dd]', msgContent)
-    
-    # particiona mensagem
+    # separa rolagem e mensagem embutida pelo jogador
     msgRaw = msgContent.split(' ', 1)
-    diceNameRaw = re.sub(r'[sh]', '', msgRaw[0].lower()).split('d', 1)
-    diceNameRaw.extend(diceNameRaw.pop().replace('-','+-').split('+',1))
+    self.rollCmdRaw = msgRaw[0].lower()
+    # dList = re.findall(self.diceRegex, rollCmdRaw)
     
-    # separa nome do dado da mensagem embutida pelo jogador
+    # salva mensagem embutida
     self.playerQuote = None
     if len(msgRaw) > 1:
       quoteRaw = re.sub(r'^\s+', '', msgRaw[1]).split('\n', 1)[0]
       if len(quoteRaw) > 1:
         self.playerQuote = quoteRaw
     
-    # atribui caracteristicas ao lancamento
-    self.amount = int(diceNameRaw[0])
-    self.faces = int(diceNameRaw[1])
-    self.__validate_roll()
-    self.hasSum = len(diceNameRaw) > 2
-    if self.hasSum:
-      self.hasSumOverEach = (diceNameRaw[2][-1].casefold() == 'e')
-    else:
-      self.hasSumOverEach = False
+    # # define comportamento da rolagem
+    # self.isHidden = False
+    # self.isSecret = False
+    # for dice_d in dList:
+    #   if 'h' in dice_d:
+    #     self.isHidden = True
+    #   elif 's' in dice_d:
+    #     self.isSecret = True
 
-    # define valor da soma
-    self.sumTerm = 0
-    if self.hasSum:
-      if self.hasSumOverEach:
-        diceNameRaw[2] = diceNameRaw[2][:-1]
-      sumFactors = diceNameRaw[2].split('+')
-      for sumFactor in sumFactors:
-        self.sumTerm += int(sumFactor)
+    #   # decodifica o dado
+    #   dStruct = {'amount': 0, 'faces': 0, 'modifier': 0, 'results': []}
+    #   dNameRaw = re.sub(r'[sh]', '', dice_d).split('d', 1)
+    #   dStruct['amount'] = int(dNameRaw[0])
+    #   dStruct['faces'] = int(dNameRaw[1])
+    #   self.__validate_dice(dStruct)
+    
+    # # particiona rolagem
+    # diceNameRaw = msgRaw[0].lower().split('d', 1)
+    # diceNameRaw.extend(diceNameRaw.pop().replace('-','+-').split('+',1))
+    
+    # # atribui caracteristicas ao lancamento
+    # self.amount = int(diceNameRaw[0])
+    # self.faces = int(diceNameRaw[1])
+    # self.__validate_roll()
+    # self.hasSum = len(diceNameRaw) > 2
+    # if self.hasSum:
+    #   self.hasSumOverEach = (diceNameRaw[2][-1].casefold() == 'e')
+    # else:
+    #   self.hasSumOverEach = False
+
+    # # define valor da soma
+    # self.sumTerm = 0
+    # if self.hasSum:
+    #   if self.hasSumOverEach:
+    #     diceNameRaw[2] = diceNameRaw[2][:-1]
+    #   sumFactors = diceNameRaw[2].split('+')
+    #   for sumFactor in sumFactors:
+    #     self.sumTerm += int(sumFactor)
 
   # testa limites de lancamento
-  def __validate_roll (self):
-    if (self.amount < 1) or (self.amount > 100) or (self.faces < 2) or (self.faces > 1000):
+  def __validate_dice (self, dStruct):
+    invalidAmount = (dStruct['amount'] < 1) or (dStruct['amount'] > 100)
+    invalidFaces = (dStruct['faces'] < 2) or (dStruct['faces'] > 1000)
+    if invalidAmount or invalidFaces:
       raise ValueError
 
   # calcula a soma final dos dados lancados
