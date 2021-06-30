@@ -6,6 +6,7 @@ from dconsts import DefaultRegexes as regex
 from p_action import PlayerAction
 from keep_alive import keep_alive
 
+# editar: TALVEZ transformar usar a propria PlayerAction ao inves de uma instancia da classe
 bot = discord.Client()
 cmd = botio.CommandAnalyzer()
 reply = botio.AutoResponder()
@@ -78,7 +79,7 @@ async def on_message(msg):
     # await msg.channel.send(':warning: BOT UNDER MAINTENANCE :warning:')
     try:
       actionResult = action.compute(msg.content)
-      await msg.channel.send(actionResult)
+      await reply.action_result(msg, actionResult)
     #   dice.roll(msg.content)
       
     #   if dice.isSecret:

@@ -187,18 +187,22 @@ class AutoResponder:
   # ----------------------------------------------------------------------------------------------
   # respostas a rolagem de dados
 
-  def roll_result (self, msg, dice, guild=None, bot=None):
-    if (dice.isSecret or dice.isHidden) and (guild and bot):
-      guild.get_gid_gdb_sch(msg, bot)
-      target_channel = guild.sch
-      rollQuote = ''
+  # def roll_result (self, msg, dice, guild=None, bot=None):
+  #   if (dice.isSecret or dice.isHidden) and (guild and bot):
+  #     guild.get_gid_gdb_sch(msg, bot)
+  #     target_channel = guild.sch
+  #     rollQuote = ''
     
-    else:
-      target_channel = msg.channel
-      rollQuote = self.challenge_quote
+  #   else:
+  #     target_channel = msg.channel
+  #     rollQuote = self.challenge_quote
 
-    if dice.playerQuote:
-      rollQuote = '\"' + dice.playerQuote + '\",'
+  #   if dice.playerQuote:
+  #     rollQuote = '\"' + dice.playerQuote + '\",'
 
-    answer = '<@'+str(msg.author.id)+'>, ' + rollQuote + '\n' + dice.rollResults
-    return target_channel.send(answer)
+  #   answer = '<@'+str(msg.author.id)+'>, ' + rollQuote + '\n' + dice.rollResults
+  #   return target_channel.send(answer)
+
+  def action_result (self, msg, actionResult):
+    answer = '<@'+str(msg.author.id)+'>, ' + actionResult
+    return msg.channel.send(answer)

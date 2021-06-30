@@ -106,9 +106,9 @@ class PlayerAction:
     # editar: mover o codigo abaixo para classe AutoResponder
     # descricao da acao
     if player_quote:
-      actionResult = '@User, \"'+ self.player_quote +'\"\n'
+      actionResult = '\"'+ player_quote +'\"\n'
     else:
-      actionResult = '@User,\n'
+      actionResult = '\n'
     
     # expressao geral e resultado da expressao geral
     actionResult += ' **'+ interpolation(general_exp.result) +'** '+ txtst.ARROW_OP + 'Final Result\n'
