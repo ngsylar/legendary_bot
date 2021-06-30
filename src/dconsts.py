@@ -1,14 +1,20 @@
+class DefaultConstants:
+  # valores de dados
+  NORMAL_RES = False
+  CRITICAL_RES = True
+
+class TextStructures:
+  # estruturas de texto
+  TEXT_BBOX = '\u0060\u0060\u0060'
+  TEXT_SBOX = '\u0060'
+  ARROW_OP = ' \u27F5 '
+
 class DefaultRegexes:
   # particoes de texto
   WHITE_SPACE = r'\s+'
   WORD_ENDING = r'\s*$'
   LINE_ENDING = r'(\s+.*\n?)?$'
   TEXT_ENDING = r'(\s+(.*\n*)*)?$'
-
-  # estruturas de texto
-  TEXT_BBOX = '\u0060\u0060\u0060'
-  TEXT_SBOX = '\u0060'
-  ARROW_OP = ' \u27F5 '
 
   # expressoes aritmeticas
   OPERATOR = r'([\*\/\+\-])'

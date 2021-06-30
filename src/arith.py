@@ -1,28 +1,28 @@
 import re
 import random
-from regexes import DefaultRegexes
+from dconsts import DefaultRegexes as regex
 
-class Operation (DefaultRegexes):
+class Operation:
   def __init__ (self, overall_exp):
     self.overall_exp = overall_exp
 
   def is_mul (self):
-    self.match = re.search(self.ARITH_MUL, self.overall_exp)
+    self.match = re.search(regex.ARITH_MUL, self.overall_exp)
     self.__set_operation_factors()
     return self.match
     
   def is_div (self):
-    self.match = re.search(self.ARITH_DIV, self.overall_exp)
+    self.match = re.search(regex.ARITH_DIV, self.overall_exp)
     self.__set_operation_factors()
     return self.match
     
   def is_add (self):
-    self.match = re.search(self.ARITH_ADD, self.overall_exp)
+    self.match = re.search(regex.ARITH_ADD, self.overall_exp)
     self.__set_operation_factors()
     return self.match
     
   def is_sub (self):
-    self.match = re.search(self.ARITH_SUB, self.overall_exp)
+    self.match = re.search(regex.ARITH_SUB, self.overall_exp)
     self.__set_operation_factors()
     return self.match
 
@@ -33,27 +33,27 @@ class Operation (DefaultRegexes):
         'right': float(self.match[2])}
 
 
-class Modifier (DefaultRegexes):
+class Modifier:
   def __init__ (self, overall_exp):
     self.overall_exp = overall_exp
 
   def operator_is_mul (self):
-    self.match = re.search(self.MODIFIER_MUL, self.overall_exp)
+    self.match = re.search(regex.MODIFIER_MUL, self.overall_exp)
     self.__set_value()
     return self.match
 
   def operator_is_div (self):
-    self.match = re.search(self.MODIFIER_DIV, self.overall_exp)
+    self.match = re.search(regex.MODIFIER_DIV, self.overall_exp)
     self.__set_value()
     return self.match
     
   def operator_is_add (self):
-    self.match = re.search(self.MODIFIER_ADD, self.overall_exp)
+    self.match = re.search(regex.MODIFIER_ADD, self.overall_exp)
     self.__set_value()
     return self.match
     
   def operator_is_sub (self):
-    self.match = re.search(self.MODIFIER_SUB, self.overall_exp)
+    self.match = re.search(regex.MODIFIER_SUB, self.overall_exp)
     self.__set_value()
     return self.match
 
@@ -62,7 +62,7 @@ class Modifier (DefaultRegexes):
       self.value = float(self.match[1])
 
 
-class Dice (DefaultRegexes):
+class Dice:
   # editar: edicao de baixa prioridade, depois ver um jeito de separar modificadores dessa classe
   def __init__ (self, name, address, modifiers_raw, modifiers_address):
     self.name = re.sub(r'[hs]', '', name)
@@ -86,11 +86,34 @@ class Dice (DefaultRegexes):
       raise
     
   def roll (self):
-    for _ in range(self.amount):
+    self.hi_result = {
+      'value': -999999,
+      'ids': []}
+    self.lo_result = {
+      'value': 999999,
+      'ids': []}
+
+    # obtem resultados da rolagem do dado
+    for i in range(self.amount):
       result_i = random.randint(1, self.faces)
       self.results.append({
         'natural': result_i,
         'modified': result_i})
+      
+      # obtem maior resultado
+      if result_i > self.hi_result['value']:
+        self.hi_result['value'] = result_i
+        self.hi_result['ids'] = [i]
+      elif result_i == self.hi_result['value']:
+        self.hi_result['ids'].append(i)
+      
+      # obtem menor resultado
+      if result_i < self.lo_result['value']:
+        self.lo_result['value'] = result_i
+        self.lo_result['ids'] = [i]
+      elif result_i == self.lo_result['value']:
+        self.lo_result['ids'].append(i)
+    
     return self.results
 
   # editar: transformar a gambiarra do retorno em algo que faca sentido
@@ -132,11 +155,24 @@ class Dice (DefaultRegexes):
     address = modifier.match
     self.modifiers_raw = self.modifiers_raw[:address.start()] + self.modifiers_raw[address.end():]
 
-  def sum_all_results (self):
-    self.total_sum = sum(float(result['modified']) for result in self.results)
-    return self.total_sum
+  def total_sum (self, result_type:str) -> float:
+    total_sum = sum(float(result[result_type]) for result in self.results)
+    return total_sum
+  
+  @property
+  def hires_moded (self):
+    if self.hi_result['ids']:
+      result_i = self.hi_result['ids'][0]
+      return self.results[result_i]['modified']
+  
+  @property
+  def lores_moded (self):
+    if self.lo_result['ids']:
+      result_i = self.lo_result['ids'][0]
+      return self.results[result_i]['modified']
 
-class Expression (DefaultRegexes):
+
+class Expression:
   def __init__ (self, raw, address=None, is_pattern=False):
     if is_pattern:
       self.raw = '('+raw.lower().replace('each', 'e').replace(',', '.')+')'
@@ -146,7 +182,7 @@ class Expression (DefaultRegexes):
       self.address = address
     
   def has_inner_expression (self):
-    self.__inner_expression_match = re.search(self.ARITH_EXPRESSION, self.raw)
+    self.__inner_expression_match = re.search(regex.ARITH_EXPRESSION, self.raw)
     return self.__inner_expression_match
     
   @property
@@ -163,14 +199,14 @@ class Expression (DefaultRegexes):
     return True
 
   def has_dice (self):
-    self.inner_dice_match = re.search(self.DICE, self.raw)
+    self.inner_dice_match = re.search(regex.DICE, self.raw)
     return self.inner_dice_match
     
   @property
   def inner_dice (self):
     if self.inner_dice_match:
       address_adjust = self.inner_dice_match.end()
-      dice_modifiers_match = re.match(self.MODIFIERS_RAW, self.raw[address_adjust:])
+      dice_modifiers_match = re.match(regex.MODIFIERS_RAW, self.raw[address_adjust:])
       return Dice(
         name = self.inner_dice_match[1],
         address = self.inner_dice_match,
