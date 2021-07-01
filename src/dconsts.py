@@ -20,6 +20,7 @@ class DefaultRegexes:
   OPERATOR = r'([\*\/\+\-])'
   FLOAT_VALUE = r'(\-?\d+(?:\.\d+)?)'
   ARITH_EXPRESSION = r'(?:\()([^()]+)(?:\))'
+  VALIDATE_EXP = r'(?:[\*\/\+\-]\(|^\(+)([^()]+)(?:\))'
 
   # operacoes aritmeticas
   ARITH_MUL = FLOAT_VALUE +r'\*'+ FLOAT_VALUE + r'(?!e)'

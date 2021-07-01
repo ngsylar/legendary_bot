@@ -148,7 +148,7 @@ class Dice:
 
   def clear_modifier (self, modifier):
     # guarda modificadores no dado
-    modifierRaw = re.sub(r'\.0+e$', '', modifier.match[0])
+    modifierRaw = re.sub(r'\.0+e$', '', modifier.match[0]).replace('+-','-')
     self.modifiers.append(modifierRaw)
     
     # apaga modificadores na expressao parcial
@@ -182,8 +182,9 @@ class Expression:
       self.address = address
     
   def has_inner_expression (self):
-    self.__inner_expression_match = re.search(regex.ARITH_EXPRESSION, self.raw)
-    return self.__inner_expression_match
+    if re.search(regex.VALIDATE_EXP, self.raw):
+      self.__inner_expression_match = re.search(regex.ARITH_EXPRESSION, self.raw)
+      return self.__inner_expression_match
     
   @property
   def inner_expression (self):
