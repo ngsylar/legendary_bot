@@ -75,7 +75,7 @@ async def on_message(msg):
   # ----------------------------------------------------------------------------------------------
   # rolar dados
 
-  elif cmd.match(regex.DICE_ROLL, msg, cmd.UNSCOPED):
+  elif cmd.match(regex.DICE_ROLL, msg):
     # await msg.channel.send(':warning: BOT UNDER MAINTENANCE :warning:')
     try:
       actionResult = action.compute(msg.content)

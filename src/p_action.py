@@ -1,7 +1,7 @@
 import re
 import arith
 from dconsts import DefaultConstants as const, TextStructures as txtst, DefaultRegexes as regex
-from auxiliaries import interpolation
+from auxiliaries import floatstr
 
 class PlayerAction:
   # calcula os resultados da rolagem de dados
@@ -53,8 +53,8 @@ class PlayerAction:
           expression.replace(innerExpression.address, innerExpression.raw)
           break
     
-    actionResult = self.__build_result(decoded_msg, expression, dices)
-    return actionResult
+    encoded_result = self.__encode_result(decoded_msg, expression, dices)
+    return encoded_result
 
   # decodifica mensagem inserida pelo usuario
   def __decode_msg (self, msg_content:str) -> dict:
@@ -74,7 +74,7 @@ class PlayerAction:
     return decoded_msg
 
   # estrutura a mensagem de saida
-  def __build_result (self, decoded_msg:dict, general_exp:arith.Expression, dices:list) -> str:
+  def __encode_result (self, decoded_msg:dict, general_exp:arith.Expression, dices:list) -> str:
     output_gexp = decoded_msg['expression']
     player_quote = decoded_msg['quote']
     
@@ -97,22 +97,11 @@ class PlayerAction:
       dice_exps.append(dice_exp)
 
     # expressao geral
-      output_gexp = re.sub(dice.name, 'dice('+str(d+1)+')', output_gexp, 1)    
-    output_gexp = re.sub(regex.MODIFIER, '', output_gexp)
+    gexpResult = txtst.TEXT_SBOX +' '+ floatstr(general_exp.result) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP
     operators = list(set(re.findall(regex.OPERATOR, output_gexp)))
     for op in operators:
       output_gexp = output_gexp.replace(op, ' '+op+' ')
-
-    # editar: mover o codigo abaixo para classe AutoResponder
-    # descricao da acao
-    if player_quote:
-      actionResult = '\"'+ player_quote +'\"\n'
-    else:
-      actionResult = '\n'
-    
-    # expressao geral e resultado da expressao geral
-    actionResult += ' **'+ interpolation(general_exp.result) +'** '+ txtst.ARROW_OP + 'Final Result\n'
-    actionResult += txtst.TEXT_BBOX +'arm\n'+ output_gexp +'\n'+ txtst.TEXT_BBOX +'\n'
+    actionResult = txtst.TEXT_BBOX +'arm\n'+ output_gexp +'\n'+ txtst.TEXT_BBOX +'\n'
     
     # resultados dos dados
     for d, dice in enumerate(dices):
@@ -120,11 +109,11 @@ class PlayerAction:
 
       # resultados modificados de cada dado
       if dice_has_modifiers:
-        actionResult += txtst.TEXT_SBOX +' '+ interpolation(dice.total_sum('modified')) +' '+ txtst.TEXT_SBOX
-        actionResult += txtst.ARROW_OP + str([interpolation(result['modified']) for result in dice.results]).replace('\'','') + '  Modified\n'
+        actionResult += txtst.TEXT_SBOX +' '+ floatstr(dice.total_sum('modified')) +' '+ txtst.TEXT_SBOX
+        actionResult += txtst.ARROW_OP + str([floatstr(result['modified']) for result in dice.results]).replace('\'','') + '  Modified\n'
       
       # resultados naturais de cada dado
-      actionResult += txtst.TEXT_SBOX +' '+ interpolation(dice.total_sum('natural')) +' '+ txtst.TEXT_SBOX
+      actionResult += txtst.TEXT_SBOX +' '+ floatstr(dice.total_sum('natural')) +' '+ txtst.TEXT_SBOX
       actionResult += txtst.ARROW_OP + str([result['natural'] for result in dice.results])
       
       # valores extremos de cada dado
@@ -147,18 +136,19 @@ class PlayerAction:
         # valores maximos
         actionResult += txtst.TEXT_SBOX +' '
         if dice_has_modifiers:
-          actionResult += interpolation(dice.hires_moded) +' | '
+          actionResult += floatstr(dice.hires_moded) +' | '
         actionResult += str(dice.hi_result['value']) +' '+ txtst.TEXT_SBOX + hires_desc[hires_is_critical]
         actionResult += ' ('+ str([result_i+1 for result_i in dice.hi_result['ids']])[1:-1] +')d\n'
 
         # valores minimos
         actionResult += txtst.TEXT_SBOX +' '
         if dice_has_modifiers:
-          actionResult += interpolation(dice.lores_moded) +' | '
+          actionResult += floatstr(dice.lores_moded) +' | '
         actionResult += str(dice.lo_result['value']) +' '+ txtst.TEXT_SBOX + lores_desc[lores_is_critical]
         actionResult += ' ('+ str([result_i+1 for result_i in dice.lo_result['ids']])[1:-1] +')d\n'
 
       # expressao com modificadores de cada dado
       actionResult += txtst.TEXT_BBOX +'arm\n'+ dice_exps[d] +'\n'+ txtst.TEXT_BBOX +'\n'
     
-    return actionResult
+    encoded_result = {'value': gexpResult, 'quote': player_quote, 'description': actionResult}
+    return encoded_result

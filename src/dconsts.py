@@ -22,15 +22,15 @@ class DefaultRegexes:
   ARITH_EXPRESSION = r'(?:\()([^()]+)(?:\))'
 
   # operacoes aritmeticas
-  ARITH_MUL = FLOAT_VALUE +r'\*'+ FLOAT_VALUE
-  ARITH_DIV = FLOAT_VALUE +r'\/'+ FLOAT_VALUE
-  ARITH_ADD = FLOAT_VALUE +r'\+'+ FLOAT_VALUE
-  ARITH_SUB = FLOAT_VALUE +r'\-'+ FLOAT_VALUE
+  ARITH_MUL = FLOAT_VALUE +r'\*'+ FLOAT_VALUE + r'(?!e)'
+  ARITH_DIV = FLOAT_VALUE +r'\/'+ FLOAT_VALUE + r'(?!e)'
+  ARITH_ADD = FLOAT_VALUE +r'\+'+ FLOAT_VALUE + r'(?!e)'
+  ARITH_SUB = FLOAT_VALUE +r'\-'+ FLOAT_VALUE + r'(?!e)'
 
   # rolagem de dados
   DICE = r'(\d+[HhSs]?[Dd]\d+)'
   DICE_ROLL = r'[\(\)\*\/\+\-\d]*'+ DICE
-  MODIFIER = OPERATOR +r'('+ FLOAT_VALUE +r'|(\([^e]+\)))(?i:(every|each|e))'
+  MODIFIER = OPERATOR +r'('+ FLOAT_VALUE +r'|(\([^e]+\)))(?i:e)'
   MODIFIERS_RAW = r'(?:(?![\*\/\+\-]\-?\d+d).)*'
 
   # operacoes com modificadores

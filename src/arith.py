@@ -148,7 +148,7 @@ class Dice:
 
   def clear_modifier (self, modifier):
     # guarda modificadores no dado
-    modifierRaw = modifier.match[0]
+    modifierRaw = re.sub(r'\.0+e$', '', modifier.match[0])
     self.modifiers.append(modifierRaw)
     
     # apaga modificadores na expressao parcial
@@ -175,7 +175,7 @@ class Dice:
 class Expression:
   def __init__ (self, raw, address=None, is_pattern=False):
     if is_pattern:
-      self.raw = '('+raw.lower().replace('each', 'e').replace(',', '.')+')'
+      self.raw = '('+raw.lower().replace(',', '.')+')'
     else:
       self.raw = raw
     if address:

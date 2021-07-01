@@ -15,7 +15,7 @@ class CommandAnalyzer:
   endofLineRegex = r'(\s+.*\n?)?$'
   endofTextRegex = r'(\s+(.*\n*)*)?$'
   
-  def match (self, cmdRegex, msg, scope):
+  def match (self, cmdRegex, msg, scope=UNSCOPED):
     if scope == self.UNSCOPED:
       msgContent = msg.content
     
@@ -26,7 +26,7 @@ class CommandAnalyzer:
     elif scope == self.AND_TEXT_BODY:
       msgContent = msg.content.lower()
       cmdRegex += self.endofTextRegex
-    
+
     else:
       try:
         descStart = msg.content.index(' ')
@@ -204,5 +204,8 @@ class AutoResponder:
   #   return target_channel.send(answer)
 
   def action_result (self, msg, actionResult):
-    answer = '<@'+str(msg.author.id)+'>, ' + actionResult
+    answer = actionResult['value'] + '<@'+str(msg.author.id)+'>,\n'
+    if actionResult['quote']:
+      answer += '\"'+ actionResult['quote'] +'\",\n'
+    answer += actionResult['description']
     return msg.channel.send(answer)
