@@ -75,16 +75,16 @@ class PlayerAction:
 
   # estrutura a mensagem de saida
   def __encode_result (self, decoded_msg:dict, general_exp:arith.Expression, dices:list) -> str:
-    output_gexp = decoded_msg['expression']
+    output_gexp = decoded_msg['expression'].replace('+-', '-').replace(',', '.')
     player_quote = decoded_msg['quote']
     
     # descricao dos valores extremos
     hires_desc = {
-      const.NORMAL_RES: ' Highest',
-      const.CRITICAL_RES: ' **Critical Strike**'}
+      const.NORMAL_RES: 'Highest',
+      const.CRITICAL_RES: '**Critical Strike**'}
     lores_desc = {
-      const.NORMAL_RES: ' Lowest',
-      const.CRITICAL_RES: ' **Critical Failure**'}
+      const.NORMAL_RES: 'Lowest',
+      const.CRITICAL_RES: '**Critical Failure**'}
 
     # expressão de cada dado
     dice_exps = []
@@ -109,12 +109,15 @@ class PlayerAction:
 
       # resultados modificados de cada dado
       if dice_has_modifiers:
-        actionResult += txtst.TEXT_SBOX +' '+ floatstr(dice.total_sum('modified')) +' '+ txtst.TEXT_SBOX
-        actionResult += txtst.ARROW_OP + str([floatstr(result['modified']) for result in dice.results]).replace('\'','') + '  Modified\n'
+        actionResult += txtst.TEXT_SBOX +' '+ floatstr(dice.total_sum('modified')) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP
+        if dice.amount > 1:
+          actionResult += str([floatstr(result['modified']) for result in dice.results]).replace('\'','') +'  '
+        actionResult += 'Modified\n'
       
       # resultados naturais de cada dado
-      actionResult += txtst.TEXT_SBOX +' '+ floatstr(dice.total_sum('natural')) +' '+ txtst.TEXT_SBOX
-      actionResult += txtst.ARROW_OP + str([result['natural'] for result in dice.results])
+      actionResult += txtst.TEXT_SBOX +' '+ floatstr(dice.total_sum('natural')) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP
+      if dice.amount > 1:
+        actionResult += str([result['natural'] for result in dice.results]) +'  '
       
       # valores extremos de cada dado
       hires_is_critical = (dice.hi_result['value'] == dice.faces)
@@ -123,29 +126,27 @@ class PlayerAction:
       # valores extremos para rolagem unica
       if dice.amount == 1:
         if hires_is_critical:
-          actionResult += ' '+ hires_desc[const.CRITICAL_RES] +'\n'
+          actionResult += hires_desc[const.CRITICAL_RES] +'\n'
         elif lores_is_critical:
-          actionResult += ' '+ lores_desc[const.CRITICAL_RES] +'\n'
+          actionResult += lores_desc[const.CRITICAL_RES] +'\n'
         else:
-          actionResult += '  Natural\n'
+          actionResult += 'Natural\n'
       
       # valores extremos para rolagem multipla
       else:
-        actionResult += '  Natural\n'
+        actionResult += 'Natural\n'
         
         # valores maximos
         actionResult += txtst.TEXT_SBOX +' '
         if dice_has_modifiers:
           actionResult += floatstr(dice.hires_moded) +' | '
-        actionResult += str(dice.hi_result['value']) +' '+ txtst.TEXT_SBOX + hires_desc[hires_is_critical]
-        actionResult += ' ('+ str([result_i+1 for result_i in dice.hi_result['ids']])[1:-1] +')d\n'
+        actionResult += str(dice.hi_result['value']) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP + hires_desc[hires_is_critical] +' ('+ str([result_i+1 for result_i in dice.hi_result['ids']])[1:-1] +')d\n'
 
         # valores minimos
         actionResult += txtst.TEXT_SBOX +' '
         if dice_has_modifiers:
           actionResult += floatstr(dice.lores_moded) +' | '
-        actionResult += str(dice.lo_result['value']) +' '+ txtst.TEXT_SBOX + lores_desc[lores_is_critical]
-        actionResult += ' ('+ str([result_i+1 for result_i in dice.lo_result['ids']])[1:-1] +')d\n'
+        actionResult += str(dice.lo_result['value']) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP + lores_desc[lores_is_critical] +' ('+ str([result_i+1 for result_i in dice.lo_result['ids']])[1:-1] +')d\n'
 
       # expressao com modificadores de cada dado
       actionResult += txtst.TEXT_BBOX +'arm\n'+ dice_exps[d] +'\n'+ txtst.TEXT_BBOX +'\n'
