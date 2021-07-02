@@ -60,9 +60,19 @@ class PlayerAction:
   def __decode_msg (self, msg_content:str) -> dict:
     player_quote = None
     
-    # separa rolagem e mensagem embutida pelo jogador
+    # separa acao e mensagem embutida pelo jogador
     msgRaw = msg_content.split(' ', 1)
     input_gexp = msgRaw[0].lower()
+
+    # define comportamento da acao
+    if input_gexp[0] == 'h':
+      action_behavior = const.HIDDEN_ACTION
+      input_gexp = input_gexp[1:]
+    elif input_gexp[0] == 's':
+      action_behavior = const.SECRET_ACTION
+      input_gexp = input_gexp[1:]
+    else:
+      action_behavior = const.PUBLIC_ACTION
     
     # salva mensagem embutida
     if len(msgRaw) > 1:
@@ -70,12 +80,16 @@ class PlayerAction:
       if len(quoteRaw) > 1:
         player_quote = quoteRaw
     
-    decoded_msg = {'expression': input_gexp, 'quote': player_quote}
+    decoded_msg = {
+      'behavior': action_behavior,
+      'expression': input_gexp,
+      'quote': player_quote,}
     return decoded_msg
 
   # estrutura a mensagem de saida
   def __encode_result (self, decoded_msg:dict, general_exp:arith.Expression, dices:list) -> str:
-    output_gexp = decoded_msg['expression'].replace('+-', '-').replace(',', '.')
+    action_behavior = decoded_msg['behavior']
+    output_gexp = decoded_msg['expression']
     player_quote = decoded_msg['quote']
     
     # descricao dos valores extremos
@@ -98,6 +112,7 @@ class PlayerAction:
 
     # expressao geral
     gexpResult = txtst.TEXT_SBOX +' '+ floatstr(general_exp.result) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP
+    output_gexp = output_gexp.replace('+-', '-').replace(',', '.')
     operators = list(set(re.findall(regex.OPERATOR, output_gexp)))
     for op in operators:
       output_gexp = output_gexp.replace(op, ' '+op+' ')
@@ -151,5 +166,9 @@ class PlayerAction:
       # expressao com modificadores de cada dado
       actionResult += txtst.TEXT_BBOX +'arm\n'+ dice_exps[d] +'\n'+ txtst.TEXT_BBOX +'\n'
     
-    encoded_result = {'value': gexpResult, 'quote': player_quote, 'description': actionResult}
+    encoded_result = {
+      'behavior': action_behavior,
+      'value': gexpResult,
+      'quote': player_quote,
+      'description': actionResult}
     return encoded_result

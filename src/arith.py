@@ -65,14 +65,14 @@ class Modifier:
 class Dice:
   # editar: edicao de baixa prioridade, depois ver um jeito de separar modificadores dessa classe
   def __init__ (self, name, address, modifiers_raw, modifiers_address):
-    self.name = re.sub(r'[hs]', '', name)
+    self.name = name
     self.address = address
     self.modifiers_raw = modifiers_raw
     self.modifiers_address = modifiers_address
-    self.__decode_name()
-    
-  def __decode_name (self):
-    dRaw = self.name.split('d', 1)
+    self.__decode_name(name)
+
+  def __decode_name (self, name):
+    dRaw = name.split('d', 1)
     self.amount = int(dRaw[0])
     self.faces = int(dRaw[1])
     self.modifiers = []

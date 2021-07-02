@@ -3,6 +3,11 @@ class DefaultConstants:
   NORMAL_RES = False
   CRITICAL_RES = True
 
+  # tipo de lancamento de dados
+  PUBLIC_ACTION = 0
+  SECRET_ACTION = 1
+  HIDDEN_ACTION = 2
+
 class TextStructures:
   # estruturas de texto
   TEXT_BBOX = '\u0060\u0060\u0060'
@@ -29,8 +34,8 @@ class DefaultRegexes:
   ARITH_SUB = FLOAT_VALUE +r'\-'+ FLOAT_VALUE + r'(?!e)'
 
   # rolagem de dados
-  DICE = r'(\d+[HhSs]?[Dd]\d+)'
-  DICE_ROLL = r'[\(\)\*\/\+\-\d]*'+ DICE
+  DICE = r'(\d+[GgLl]?[Dd]\d+)'
+  PLAYER_ACTION = r'[HhSs]?[\(\)\*\/\+\-\d]*'+ DICE
   MODIFIER = OPERATOR +r'('+ FLOAT_VALUE +r'|(\([^e]+\)))(?i:e)'
   MODIFIERS_RAW = r'(?:(?![\*\/\+\-]\-?\d+d).)*'
 

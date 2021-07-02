@@ -1,5 +1,6 @@
-import random
 import re
+import random
+from dconsts import DefaultConstants as const
 
 # analisador de comandos
 class CommandAnalyzer:
@@ -187,25 +188,17 @@ class AutoResponder:
   # ----------------------------------------------------------------------------------------------
   # respostas a rolagem de dados
 
-  # def roll_result (self, msg, dice, guild=None, bot=None):
-  #   if (dice.isSecret or dice.isHidden) and (guild and bot):
-  #     guild.get_gid_gdb_sch(msg, bot)
-  #     target_channel = guild.sch
-  #     rollQuote = ''
-    
-  #   else:
-  #     target_channel = msg.channel
-  #     rollQuote = self.challenge_quote
+  def action_result (self, msg, actionResult, guild=None, bot=None):
+    actionBehavior = actionResult['behavior']
 
-  #   if dice.playerQuote:
-  #     rollQuote = '\"' + dice.playerQuote + '\",'
+    if (actionBehavior != const.PUBLIC_ACTION) and (guild and bot):
+      guild.get_gid_gdb_sch(msg, bot)
+      target_channel = guild.sch
+    else:
+      target_channel = msg.channel
 
-  #   answer = '<@'+str(msg.author.id)+'>, ' + rollQuote + '\n' + dice.rollResults
-  #   return target_channel.send(answer)
-
-  def action_result (self, msg, actionResult):
     answer = actionResult['value'] + '<@'+str(msg.author.id)+'>,\n'
     if actionResult['quote']:
       answer += '\"'+ actionResult['quote'] +'\",\n'
     answer += actionResult['description']
-    return msg.channel.send(answer)
+    return target_channel.send(answer)

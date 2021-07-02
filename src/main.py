@@ -2,7 +2,7 @@ import discord
 import os
 import gdb
 import botio
-from dconsts import DefaultRegexes as regex
+from dconsts import DefaultConstants as const, DefaultRegexes as regex
 from p_action import PlayerAction
 from keep_alive import keep_alive
 
@@ -75,23 +75,22 @@ async def on_message(msg):
   # ----------------------------------------------------------------------------------------------
   # rolar dados
 
-  elif cmd.match(regex.DICE_ROLL, msg):
+  elif cmd.match(regex.PLAYER_ACTION, msg):
     # await msg.channel.send(':warning: BOT UNDER MAINTENANCE :warning:')
     try:
       actionResult = action.compute(msg.content)
-      await reply.action_result(msg, actionResult)
-    #   dice.roll(msg.content)
+      actionBehavior = actionResult['behavior']
+
+      if actionBehavior == const.HIDDEN_ACTION:
+        await msg.delete()
+        await reply.action_result(msg, actionResult, guild, bot)
       
-    #   if dice.isSecret:
-    #     await reply.challenge(msg)
-    #     await reply.roll_result(msg, dice, guild, bot)
+      elif actionBehavior == const.SECRET_ACTION:
+        await reply.challenge(msg)
+        await reply.action_result(msg, actionResult, guild, bot)
       
-    #   elif dice.isHidden:
-    #     await msg.delete()
-    #     await reply.roll_result(msg, dice, guild, bot)
-      
-    #   else:
-    #     await reply.roll_result(msg, dice)
+      else:
+        await reply.action_result(msg, actionResult)
     
     except:
       return
