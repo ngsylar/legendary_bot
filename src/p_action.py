@@ -1,6 +1,6 @@
 import re
 import arith
-from dconsts import DefaultConstants as const, TextStructures as txtst, DefaultRegexes as regex
+from dconsts import DefaultConstants as const, TextStructures as txtop, DefaultRegexes as regex
 from auxiliaries import floatstr
 
 class PlayerAction:
@@ -111,12 +111,12 @@ class PlayerAction:
       dice_exps.append(dice_exp)
 
     # expressao geral
-    gexpResult = txtst.TEXT_SBOX +' '+ floatstr(general_exp.result) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP
+    gexpResult = txtop.SBOX +' '+ floatstr(general_exp.result) +' '+ txtop.SBOX + txtop.ARROW_OP
     output_gexp = output_gexp.replace('+-', '-').replace(',', '.')
     operators = list(set(re.findall(regex.OPERATOR, output_gexp)))
     for op in operators:
       output_gexp = output_gexp.replace(op, ' '+op+' ')
-    actionResult = txtst.TEXT_BBOX +'arm\n'+ output_gexp +'\n'+ txtst.TEXT_BBOX +'\n'
+    actionResult = txtop.BBOX +'arm\n'+ output_gexp +'\n'+ txtop.BBOX +'\n'
     
     # resultados dos dados
     for d, dice in enumerate(dices):
@@ -124,13 +124,13 @@ class PlayerAction:
 
       # resultados modificados de cada dado
       if dice_has_modifiers:
-        actionResult += txtst.TEXT_SBOX +' '+ floatstr(dice.total_sum('modified')) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP
+        actionResult += txtop.SBOX +' '+ floatstr(dice.total_sum('modified')) +' '+ txtop.SBOX + txtop.ARROW_OP
         if dice.amount > 1:
           actionResult += str([floatstr(result['modified']) for result in dice.results]).replace('\'','') +'  '
         actionResult += 'Modified\n'
       
       # resultados naturais de cada dado
-      actionResult += txtst.TEXT_SBOX +' '+ floatstr(dice.total_sum('natural')) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP
+      actionResult += txtop.SBOX +' '+ floatstr(dice.total_sum('natural')) +' '+ txtop.SBOX + txtop.ARROW_OP
       if dice.amount > 1:
         actionResult += str([result['natural'] for result in dice.results]) +'  '
       
@@ -152,19 +152,19 @@ class PlayerAction:
         actionResult += 'Natural\n'
         
         # valores maximos
-        actionResult += txtst.TEXT_SBOX +' '
+        actionResult += txtop.SBOX +' '
         if dice_has_modifiers:
           actionResult += floatstr(dice.hires_moded) +' | '
-        actionResult += str(dice.hi_result['value']) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP + hires_desc[hires_is_critical] +' ('+ str([result_i+1 for result_i in dice.hi_result['ids']])[1:-1] +')d\n'
+        actionResult += str(dice.hi_result['value']) +' '+ txtop.SBOX + txtop.ARROW_OP + hires_desc[hires_is_critical] +' ('+ str([result_i+1 for result_i in dice.hi_result['ids']])[1:-1] +')d\n'
 
         # valores minimos
-        actionResult += txtst.TEXT_SBOX +' '
+        actionResult += txtop.SBOX +' '
         if dice_has_modifiers:
           actionResult += floatstr(dice.lores_moded) +' | '
-        actionResult += str(dice.lo_result['value']) +' '+ txtst.TEXT_SBOX + txtst.ARROW_OP + lores_desc[lores_is_critical] +' ('+ str([result_i+1 for result_i in dice.lo_result['ids']])[1:-1] +')d\n'
+        actionResult += str(dice.lo_result['value']) +' '+ txtop.SBOX + txtop.ARROW_OP + lores_desc[lores_is_critical] +' ('+ str([result_i+1 for result_i in dice.lo_result['ids']])[1:-1] +')d\n'
 
       # expressao com modificadores de cada dado
-      actionResult += txtst.TEXT_BBOX +'arm\n'+ dice_exps[d] +'\n'+ txtst.TEXT_BBOX +'\n'
+      actionResult += txtop.BBOX +'arm\n'+ dice_exps[d] +'\n'+ txtop.BBOX +'\n'
     
     encoded_result = {
       'behavior': action_behavior,

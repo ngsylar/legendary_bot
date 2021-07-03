@@ -1,6 +1,7 @@
 import re
 import random
 from dconsts import DefaultConstants as const
+from helpguide import UserGuide as helpmsg
 
 # analisador de comandos
 class CommandAnalyzer:
@@ -18,7 +19,7 @@ class CommandAnalyzer:
   
   def match (self, cmdRegex, msg, scope=UNSCOPED):
     if scope == self.UNSCOPED:
-      msgContent = msg.content
+      msgContent = msg.content.lower()
     
     elif scope == self.ONLY:
       msgContent = msg.content.lower()
@@ -78,72 +79,21 @@ class AutoResponder:
     return msg.channel.send(answer)
   
   def help (self, msg, cmd, bot, embedBox):
-    answer = '<@'+str(msg.author.id)+'>, ' + self.please_quote
+    if cmd.match('legen!help', msg, cmd.ONLY):
+      embedBox = helpmsg.general_group(bot, embedBox)
     
-    if cmd.match('please', msg, cmd.AND_DESCRIPTION):
-      textPack = '\u0060\u0060\u0060'
-      textBox = '\u0060'
-      arrowSign = ' \u27F5 '
-
-      self.embedBox_text = ''.join([
-        'The great list of all the legendary commandments.\n\n',
-        
-        ':book: **Information**\n',
-        '<@'+str(bot.user.id)+'>' + arrowSign + 'Tells you who I am.\n',
-        textBox + 'legen!dary' + textBox + arrowSign + 'Provides useful information.\n',
-        textBox + 'legen!help <please>' + textBox + arrowSign + 'Provides this user manual.\n\n',
-        # textBox + 'legen!help <option>' + textBox + arrowSign + 'For help with a specific group of commands.\n\n',
-
-        # # editar: precisa pensar num jeito melhor de implementar esse sumario
-        # '**Help _options_**\n',
-        # textBox + 'please' + textBox + arrowSign + 'Provides this user manual.\n',
-        # textBox + 'moderation' + textBox + arrowSign + 'For detailed moderation commands.\n',
-        # textBox + 'gambling' + textBox + arrowSign + 'For detailed gambling commands.\n\n',
-        
-        ':crossed_swords: **Moderation** (role permission required)\n',
-        textBox + 'legen!sch <option>' + textBox + arrowSign + 'Queries or assigns the Secret Channel.\n',
-        textBox + 'legen!mgmt <option>' + textBox + arrowSign + 'Queries or adds management roles\n',
-        textBox + 'legen!del <option>' + textBox + arrowSign + 'Removes a record from the guild database.\n\n',
-
-        '**Moderation SCH options**\n',
-        textBox + ' ' + textBox + arrowSign + 'Blank to reveal the Secret Channel.\n',
-        textBox + '#<channel_name>' + textBox + arrowSign + 'To update the Secret Channel.\n\n',
-
-        '**Moderation MGMT options**\n',
-        textBox + ' ' + textBox + arrowSign + 'Blank to reveal management roles (any role called \"Mastermind\" is manager by default).\n',
-        textBox + '@<role_name>' + textBox + arrowSign + 'To add management roles (you can add multiple roles simultaneously).\n\n',
-        
-        '**Moderation deletion options**\n',
-        textBox + 'sch' + textBox + arrowSign + 'Selects the Secret Channel for deletion.\n',
-        textBox + 'mgmt' + textBox + arrowSign + 'Selects all management roles for deletion.\n\n',
-        # textBox + '@<role_name>' + textBox + arrowSign + 'Select the roles to be removed from management.\n\n',
-
-        ':game_die: **Gambling**\n',
-        textBox + '<amount><behavior>d<range><sum> <message>' + textBox + arrowSign + 'Rolls the dice. _Message_ is optional.\n\n'
-
-        '**Mandatory dice parameters**\n',
-        textBox + '<amount>' + textBox + arrowSign + 'Consists of an integer number from 1 to 100 of dice to be rolled.\n',
-        textBox + '<range>' + textBox + arrowSign + 'Consists of an integer number from 2 to 1000 faces of the dice to roll.\n\n',
-
-        '**Rolling dice _behavior_**\n',
-        textBox + ' ' + textBox + arrowSign + 'Blank to just roll the dice.\n',
-        textBox + 's' + textBox + arrowSign + 'To roll a secret dice whose result will be shown in the Secret Channel.\n',
-        textBox + 'h' + textBox + arrowSign + 'To roll a hidden dice whose roll command will be omitted and whose result will be shown in the Secret Channel (bot must have permission to manage the channel messages).\n\n'
-        
-        '**Dice _sum_**\n',
-        textBox + '<modifier><method>' + textBox + arrowSign + 'The _modifier_ consists of an optional arithmetic expression to be added to the dice result. If the modifier exists, the sum _method_ can be left blank to add the modifier value to the final sum of the dice, or it can be filled in with \'e\' to add the modifier value to the result of each dice rolled. See examples of correct entries:\n',
-        textPack + '2d8 to be proud of\n1d20+5\n4d20+5e\n2sd8+7e\n2hd20-1e' + textPack
-      ])
-
-      self.thumbnail_url = 'https://media.istockphoto.com/vectors/isometric-businessman-try-to-standing-on-rolling-dice-vector-id1025271320?k=6&m=1025271320&s=612x612&w=0&h=0-7C9XoTcB5JWSJFIsfUXIMtmPqJkDsZaL_5LLSu9VA='
-
-      embedBox.set_author(name='The Bro Code', icon_url=bot.user.avatar_url)
-      embedBox.set_thumbnail(url=self.thumbnail_url)
-      embedBox.description=self.embedBox_text
-      embedBox.color=0x5865f2
-      
-      return msg.channel.send(embed=embedBox)
-    return msg.channel.send(answer)
+    elif cmd.match(r'(information|info)', msg, cmd.AND_DESCRIPTION):
+      embedBox = helpmsg.info_group(embedBox)
+    elif cmd.match(r'(moderation|mod)', msg, cmd.AND_DESCRIPTION):
+      embedBox = helpmsg.mod_group(embedBox)
+    elif cmd.match(r'(gambling|game)', msg, cmd.AND_DESCRIPTION):
+      embedBox = helpmsg.game_group(embedBox)
+    
+    else:
+      answer = '<@'+str(msg.author.id)+'>, '+ self.please_quote
+      return msg.channel.send(answer)
+    
+    return msg.channel.send(embed=embedBox)
 
   def challenge (self, msg):
     answer = '<@'+str(msg.author.id)+'>, ' + self.challenge_quote

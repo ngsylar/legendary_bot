@@ -10,8 +10,14 @@ class DefaultConstants:
 
 class TextStructures:
   # estruturas de texto
-  TEXT_BBOX = '\u0060\u0060\u0060'
-  TEXT_SBOX = '\u0060'
+  BBOX = '\u0060\u0060\u0060'
+  SBOX = '\u0060'
+
+  # caracteres especiais
+  CBLANK0 = '\u200b'
+  CBLANK1 = '\u2800'
+
+  # operadores
   ARROW_OP = ' \u27F5 '
 
 class DefaultRegexes:

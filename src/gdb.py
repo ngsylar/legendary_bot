@@ -49,6 +49,7 @@ class GuildDB:
     self.queryResult = self.gdb['mgmt']
 
   # editar: adicionar a possibilidade de excluir apenas um cargo da lista de gerentes
+  # editar: apagar cargos do servidor ainda não os apaga automaticamente da gerência
   # remove um registro do gdb
   def remove_record (self, msg, cmd):
     self.get_gid_gdb_sch(msg)
