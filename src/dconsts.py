@@ -40,14 +40,14 @@ class DefaultRegexes:
   ARITH_SUB = FLOAT_VALUE +r'\-'+ FLOAT_VALUE + r'(?!e)'
 
   # rolagem de dados
-  DICE = r'(\d+[GgLl]?[Dd]\d+)'
+  DICE = r'((\d+)[GgLl]?[Dd](\d+))'
   MULTIPLE_DICE = r'(?:(\d+)\#)?' + DICE
-  PLAYER_ACTION = r'[HhSs]?[\(\)\*\/\+\-\#\d]*'+ DICE
-  MODIFIER = OPERATOR + FLOAT_VALUE +r'e'
-  MODIFIERS_RAW = r'(?:(?![\*\/\+\-]\-?\d+d).)*'
+  PLAYER_ACTION = r'[HhSs]?[\(\)\*\/\+\-\#\.,\d]*'+ DICE
+  MODIFIER = r'('+ OPERATOR + FLOAT_VALUE +r')e'
+  MODIFIERS_RAW = r'('+ MODIFIER +r')+'
 
   # operacoes com modificadores
-  MODIFIER_MUL = r'\*'+ FLOAT_VALUE +r'e'
-  MODIFIER_DIV = r'\/'+ FLOAT_VALUE +r'e'
-  MODIFIER_ADD = r'\+'+ FLOAT_VALUE +r'e'
-  MODIFIER_SUB = r'\-'+ FLOAT_VALUE +r'e'
+  MODIFIER_MUL = r'\*'+ FLOAT_VALUE
+  MODIFIER_DIV = r'\/'+ FLOAT_VALUE
+  MODIFIER_ADD = r'\+'+ FLOAT_VALUE
+  MODIFIER_SUB = r'\-'+ FLOAT_VALUE

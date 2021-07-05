@@ -21,18 +21,16 @@ class PlayerAction:
         while innerDice.has_modifier():
           modifier = innerDice.current_modifier
           if modifier.operator_is_mul():
-            innerDice.mul_each_result(modifier, clear_after_op=True)
+            innerDice.mul_each_result(modifier)
           elif modifier.operator_is_div():
-            innerDice.div_each_result(modifier, clear_after_op=True)
+            innerDice.div_each_result(modifier)
           elif modifier.operator_is_add():
-            innerDice.add_each_result(modifier, clear_after_op=True)
+            innerDice.add_each_result(modifier)
           elif modifier.operator_is_sub():
-            innerDice.sub_each_result(modifier, clear_after_op=True)
-          else:
-            break
+            innerDice.sub_each_result(modifier)
         
-        innerExpression.replace(innerDice.modifiers_address, innerDice.modifiers_raw)
-        innerExpression.replace(innerExpression.inner_dice_match, innerDice.total_sum('modified'))
+        innerDice.restart_modifiers()
+        innerExpression.replace(innerDice.address, innerDice.total_sum('modified'))
         dices.append(innerDice)
       
       while innerExpression.has_operation():

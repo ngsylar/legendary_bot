@@ -76,7 +76,7 @@ async def on_message(msg):
   # rolar dados
 
   elif cmd.match(regex.PLAYER_ACTION, msg):
-    # await msg.channel.send(':warning: BOT UNDER MAINTENANCE :warning:')
+      # await msg.channel.send(':warning: BOT UNDER MAINTENANCE :warning:')
     try:
       actionResult = action.compute(msg.content)
       actionBehavior = actionResult['behavior']

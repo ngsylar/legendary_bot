@@ -34,50 +34,46 @@ class Operation:
 
 
 class Modifier:
-  def __init__ (self, overall_exp):
-    self.overall_exp = overall_exp
+  def __init__ (self, raw):
+    self.raw = raw
+    self.match = None
 
   def operator_is_mul (self):
-    self.match = re.search(regex.MODIFIER_MUL, self.overall_exp)
-    self.__set_value()
+    self.match = re.match(regex.MODIFIER_MUL, self.raw)
     return self.match
 
   def operator_is_div (self):
-    self.match = re.search(regex.MODIFIER_DIV, self.overall_exp)
-    self.__set_value()
+    self.match = re.match(regex.MODIFIER_DIV, self.raw)
     return self.match
     
   def operator_is_add (self):
-    self.match = re.search(regex.MODIFIER_ADD, self.overall_exp)
-    self.__set_value()
+    self.match = re.match(regex.MODIFIER_ADD, self.raw)
     return self.match
     
   def operator_is_sub (self):
-    self.match = re.search(regex.MODIFIER_SUB, self.overall_exp)
-    self.__set_value()
+    self.match = re.match(regex.MODIFIER_SUB, self.raw)
     return self.match
 
-  def __set_value (self):
+  @property
+  def value (self):
     if self.match:
-      self.value = float(self.match[1])
+      value = float(self.match[1])
+    return value
 
 
 class Dice:
   # editar: edicao de baixa prioridade, depois ver um jeito de separar modificadores dessa classe
-  def __init__ (self, name, address, modifiers_raw, modifiers_address):
-    self.name = name
+  def __init__ (self, match, address, modifiers):
+    self.name = match[2]
     self.address = address
-    self.modifiers_raw = modifiers_raw
-    self.modifiers_address = modifiers_address
-    self.__decode_name(name)
-
-  def __decode_name (self, name):
-    dRaw = name.split('d', 1)
-    self.amount = int(dRaw[0])
-    self.faces = int(dRaw[1])
-    self.modifiers = []
+    
+    self.amount = int(match[3])
+    self.faces = int(match[4])
     self.results = []
     self.__validate()
+
+    self.modifiers = modifiers
+    self.__mods_rawlist = modifiers.copy()
 
   def __validate (self):
     invalid_amount = (self.amount < 1) or (self.amount > 100)
@@ -116,45 +112,34 @@ class Dice:
     
     return self.results
 
-  # editar: transformar a gambiarra do retorno em algo que faca sentido
   def has_modifier (self):
-    self.current_modifier = Modifier(
-      overall_exp = self.modifiers_raw)
-    return True
+    if self.modifiers:
+      current_mod = self.modifiers.pop(0)
+      self.current_modifier = Modifier(
+        raw = current_mod)
+    else:
+      self.current_modifier = None
+    return self.current_modifier
 
-  def mul_each_result (self, modifier, clear_after_op=False):
+  def mul_each_result (self, modifier):
     for i, _ in enumerate(self.results):
       self.results[i]['modified'] *= modifier.value
-    if clear_after_op:
-      self.clear_modifier(modifier)
-  
-  def div_each_result (self, modifier, clear_after_op=False):
+      
+  def div_each_result (self, modifier):
     for i, _ in enumerate(self.results):
       self.results[i]['modified'] /= modifier.value
-    if clear_after_op:
-      self.clear_modifier(modifier)
-    
-  def add_each_result (self, modifier, clear_after_op=False):
+        
+  def add_each_result (self, modifier):
     for i, _ in enumerate(self.results):
       self.results[i]['modified'] += modifier.value
-    if clear_after_op:
-      self.clear_modifier(modifier)
-  
-  def sub_each_result (self, modifier, clear_after_op=False):
+      
+  def sub_each_result (self, modifier):
     for i, _ in enumerate(self.results):
       self.results[i]['modified'] -= modifier.value
-    if clear_after_op:
-      self.clear_modifier(modifier)
-
-  def clear_modifier (self, modifier):
-    # guarda modificadores no dado
-    modifierRaw = re.sub(r'\.0+e$', '', modifier.match[0]).replace('+-','-')
-    self.modifiers.append(modifierRaw)
     
-    # apaga modificadores na expressao parcial
-    address = modifier.match
-    self.modifiers_raw = self.modifiers_raw[:address.start()] + self.modifiers_raw[address.end():]
-
+  def restart_modifiers (self):
+    self.modifiers.extend(self.__mods_rawlist)
+    
   def total_sum (self, result_type:str) -> float:
     total_sum = sum(float(result[result_type]) for result in self.results)
     return total_sum
@@ -180,7 +165,7 @@ class Expression:
       self.raw = raw
     if address:
       self.address = address
-    self.__dice_repetition = None
+    # self.__dice_repetition = None
     
   def has_inner_expression (self):
     if re.search(regex.VALIDATE_EXP, self.raw):
@@ -201,25 +186,34 @@ class Expression:
     return True
 
   def has_dice (self):
-    if self.__dice_repetition:
-      self.__dice_repetition -= 1
-    else:
-      self.inner_dice_match = re.search(regex.MULTIPLE_DICE, self.raw)
-      self.__dice_repetition = self.inner_dice_match[1]
+    self.inner_dice_match = re.search(regex.MULTIPLE_DICE, self.raw)
+    # if self.__dice_repetition:
+    #   self.__dice_repetition -= 1
+    # else:
+    #   self.inner_dice_match = re.search(regex.MULTIPLE_DICE, self.raw)
+    #   self.__dice_repetition = self.inner_dice_match[1]
     return self.inner_dice_match
     
   @property
   def inner_dice (self):
     if self.inner_dice_match:
-      address_adjust = self.inner_dice_match.end()
-      dice_modifiers_match = re.match(regex.MODIFIERS_RAW, self.raw[address_adjust:])
+      dice_address = {
+        'start': self.inner_dice_match.start(),
+        'end': self.inner_dice_match.end()}
+      
+      dice_mods_match = re.match(regex.MODIFIERS_RAW, self.raw[dice_address['end']:])
+      if dice_mods_match:
+        dice_mods_raw = dice_mods_match[0].replace('+-','-')
+        findall_dice_mods = re.findall(regex.MODIFIER, dice_mods_raw)
+        dice_mods = [mod_i for (mod_i,_,_) in findall_dice_mods]
+        dice_address['end'] += dice_mods_match.end()
+      else:
+        dice_mods = []
+
       return Dice(
-        name = self.inner_dice_match[2],
-        address = self.inner_dice_match,
-        modifiers_raw = dice_modifiers_match[0],
-        modifiers_address = {
-          'start': dice_modifiers_match.start() + address_adjust,
-          'end': dice_modifiers_match.end() + address_adjust})
+        match = self.inner_dice_match,
+        address = dice_address,
+        modifiers = dice_mods)
 
   def replace (self, address, replacement):
     if type(address) == re.Match:

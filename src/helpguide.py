@@ -71,7 +71,7 @@ class UserGuide:
       txtop.BBOX + 'ini\n[a]d[r]' + txtop.BBOX,
       txtop.BBOX + '2d20 for example will roll a twenty-sided die twice' + txtop.BBOX,
 
-      '\nYou can add modifiers to the result of each die - where _op_ is a mathematical operator whose priority is always the order in which they appear and _v_ is the value to modify the die results:',
+      '\nYou can add modifiers to each result of a die immediately after it - where _op_ is a mathematical operator whose priority is always the order in which they appear and _v_ is the value to modify the die results:',
       txtop.BBOX + 'ini\n[op][v]e' + txtop.BBOX,
       txtop.BBOX + '2d20+2e for example will add 2 to the value of each result of a die' + txtop.BBOX,
 
