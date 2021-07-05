@@ -1,4 +1,5 @@
 import re
+import copy
 import arith
 from dconsts import DefaultConstants as const, TextStructures as txtop, DefaultRegexes as regex
 from auxiliaries import floatstr
@@ -16,22 +17,31 @@ class PlayerAction:
 
       while innerExpression.has_dice():
         innerDice = innerExpression.inner_dice
-        innerDice.roll()
-
-        while innerDice.has_modifier():
-          modifier = innerDice.current_modifier
-          if modifier.operator_is_mul():
-            innerDice.mul_each_result(modifier)
-          elif modifier.operator_is_div():
-            innerDice.div_each_result(modifier)
-          elif modifier.operator_is_add():
-            innerDice.add_each_result(modifier)
-          elif modifier.operator_is_sub():
-            innerDice.sub_each_result(modifier)
+        if innerDice.repetition:
+          dice_repetition = int(innerDice.repetition)
+        else:
+          dice_repetition = 1
+        dice_total_sum = 0
         
-        innerDice.restart_modifiers()
-        innerExpression.replace(innerDice.address, innerDice.total_sum('modified'))
-        dices.append(innerDice)
+        for _ in range(dice_repetition):
+          dice = copy.deepcopy(innerDice)
+          dice.roll()
+          
+          while dice.get_modifier():
+            modifier = dice.current_modifier
+            if modifier.operator_is_mul():
+              dice.mul_each_result(modifier)
+            elif modifier.operator_is_div():
+              dice.div_each_result(modifier)
+            elif modifier.operator_is_add():
+              dice.add_each_result(modifier)
+            elif modifier.operator_is_sub():
+              dice.sub_each_result(modifier)
+          
+          dice_total_sum += dice.total_sum('modified')
+          dice.restart_modifiers()
+          dices.append(dice)
+        innerExpression.replace(innerDice.address, dice_total_sum)
       
       while innerExpression.has_operation():
         operation = innerExpression.current_operation

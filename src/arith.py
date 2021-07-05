@@ -64,6 +64,7 @@ class Modifier:
 class Dice:
   # editar: edicao de baixa prioridade, depois ver um jeito de separar modificadores dessa classe
   def __init__ (self, match, address, modifiers):
+    self.repetition = match[1]
     self.name = match[2]
     self.address = address
     
@@ -112,7 +113,7 @@ class Dice:
     
     return self.results
 
-  def has_modifier (self):
+  def get_modifier (self):
     if self.modifiers:
       current_mod = self.modifiers.pop(0)
       self.current_modifier = Modifier(
@@ -165,7 +166,6 @@ class Expression:
       self.raw = raw
     if address:
       self.address = address
-    # self.__dice_repetition = None
     
   def has_inner_expression (self):
     if re.search(regex.VALIDATE_EXP, self.raw):
@@ -187,11 +187,6 @@ class Expression:
 
   def has_dice (self):
     self.inner_dice_match = re.search(regex.MULTIPLE_DICE, self.raw)
-    # if self.__dice_repetition:
-    #   self.__dice_repetition -= 1
-    # else:
-    #   self.inner_dice_match = re.search(regex.MULTIPLE_DICE, self.raw)
-    #   self.__dice_repetition = self.inner_dice_match[1]
     return self.inner_dice_match
     
   @property
