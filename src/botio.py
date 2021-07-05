@@ -147,8 +147,8 @@ class AutoResponder:
     else:
       target_channel = msg.channel
 
-    answer = actionResult['value'] + '<@'+str(msg.author.id)+'>,\n'
+    answer = actionResult['value'] + '<@'+str(msg.author.id)+'>,'
     if actionResult['quote']:
-      answer += '\"'+ actionResult['quote'] +'\",\n'
-    answer += actionResult['description']
+      answer += ' \"'+ actionResult['quote'] +'\",'
+    answer += '\n' + actionResult['description']
     return target_channel.send(answer)

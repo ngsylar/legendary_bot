@@ -180,6 +180,7 @@ class Expression:
       self.raw = raw
     if address:
       self.address = address
+    self.__dice_repetition = None
     
   def has_inner_expression (self):
     if re.search(regex.VALIDATE_EXP, self.raw):
@@ -200,7 +201,11 @@ class Expression:
     return True
 
   def has_dice (self):
-    self.inner_dice_match = re.search(regex.DICE, self.raw)
+    if self.__dice_repetition:
+      self.__dice_repetition -= 1
+    else:
+      self.inner_dice_match = re.search(regex.MULTIPLE_DICE, self.raw)
+      self.__dice_repetition = self.inner_dice_match[1]
     return self.inner_dice_match
     
   @property
@@ -209,7 +214,7 @@ class Expression:
       address_adjust = self.inner_dice_match.end()
       dice_modifiers_match = re.match(regex.MODIFIERS_RAW, self.raw[address_adjust:])
       return Dice(
-        name = self.inner_dice_match[1],
+        name = self.inner_dice_match[2],
         address = self.inner_dice_match,
         modifiers_raw = dice_modifiers_match[0],
         modifiers_address = {
