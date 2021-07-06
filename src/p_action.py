@@ -1,6 +1,6 @@
 import re
 import copy
-import arith
+from arith.expression import Expression
 from dconsts import DefaultConstants as const, TextStructures as txtop, DefaultRegexes as regex
 from auxiliaries import floatstr
 
@@ -9,7 +9,7 @@ class PlayerAction:
   def compute (self, msgContent):
     decoded_msg = self.__decode_msg(msgContent)
     input_gexp = decoded_msg['expression']
-    expression = arith.Expression(input_gexp, is_pattern=True)
+    expression = Expression(input_gexp, is_pattern=True)
     
     dices = []
     while expression.has_inner_expression():
@@ -95,7 +95,7 @@ class PlayerAction:
     return decoded_msg
 
   # estrutura a mensagem de saida
-  def __encode_result (self, decoded_msg:dict, general_exp:arith.Expression, dices:list) -> str:
+  def __encode_result (self, decoded_msg:dict, general_exp:Expression, dices:list) -> str:
     action_behavior = decoded_msg['behavior']
     output_gexp = decoded_msg['expression']
     player_quote = decoded_msg['quote']
