@@ -17,11 +17,11 @@ class PlayerAction:
 
       while innerExpression.has_dice():
         innerDice = innerExpression.inner_dice
+        innerDice_sum = 0
         if innerDice.repetition:
           dice_repetition = int(innerDice.repetition)
         else:
           dice_repetition = 1
-        dice_total_sum = 0
         
         for _ in range(dice_repetition):
           dice = copy.deepcopy(innerDice)
@@ -30,18 +30,18 @@ class PlayerAction:
           while dice.get_modifier():
             modifier = dice.current_modifier
             if modifier.operator_is_mul():
-              dice.mul_each_result(modifier)
+              dice.modified.results = dice.results * modifier
             elif modifier.operator_is_div():
-              dice.div_each_result(modifier)
+              dice.modified.results = dice.results / modifier
             elif modifier.operator_is_add():
-              dice.add_each_result(modifier)
+              dice.modified.results = dice.results + modifier
             elif modifier.operator_is_sub():
-              dice.sub_each_result(modifier)
+              dice.modified.results = dice.results - modifier
           
-          dice_total_sum += dice.total_sum('modified')
+          innerDice_sum += dice.modified.results_sum
           dice.restart_modifiers()
           dices.append(dice)
-        innerExpression.replace(innerDice.address, dice_total_sum)
+        innerExpression.replace(innerDice.address, innerDice_sum)
       
       while innerExpression.has_operation():
         operation = innerExpression.current_operation
@@ -132,15 +132,15 @@ class PlayerAction:
 
       # resultados modificados de cada dado
       if dice_has_modifiers:
-        actionResult += txtop.SBOX +' '+ floatstr(dice.total_sum('modified')) +' '+ txtop.SBOX + txtop.ARROW_OP
+        actionResult += txtop.SBOX +' '+ floatstr(dice.modified.results_sum) +' '+ txtop.SBOX + txtop.ARROW_OP
         if dice.amount > 1:
-          actionResult += str([floatstr(result['modified']) for result in dice.results]).replace('\'','') +'  '
+          actionResult += str([floatstr(result) for result in dice.modified.results]).replace('\'','') +'  '
         actionResult += 'Modified\n'
       
       # resultados naturais de cada dado
-      actionResult += txtop.SBOX +' '+ floatstr(dice.total_sum('natural')) +' '+ txtop.SBOX + txtop.ARROW_OP
+      actionResult += txtop.SBOX +' '+ floatstr(dice.natural.results_sum) +' '+ txtop.SBOX + txtop.ARROW_OP
       if dice.amount > 1:
-        actionResult += str([result['natural'] for result in dice.results]) +'  '
+        actionResult += str([result for result in dice.natural.results]) +'  '
       
       # valores extremos de cada dado
       hires_is_critical = (dice.hi_result['value'] == dice.faces)

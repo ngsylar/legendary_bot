@@ -1,6 +1,33 @@
 import random
 from arith.modifier import Modifier
 
+class DiceResults:
+  def __init__ (self, results=None):
+    if results:
+      self.results = results
+    else:
+      self.results = []
+  
+  def __mul__ (self, modifier):
+    results = [result_i*modifier.value for result_i in self.results]
+    return results
+
+  def __div__ (self, modifier):
+    results = [result_i/modifier.value for result_i in self.results]
+    return results
+
+  def __add__ (self, modifier):
+    results = [result_i+modifier.value for result_i in self.results]
+    return results
+  
+  def __sub__ (self, modifier):
+    results = [result_i-modifier.value for result_i in self.results]
+    return results
+  
+  @property
+  def results_sum (self):
+    return float(sum(self.results))
+
 class Dice:
   # editar: edicao de baixa prioridade, depois ver um jeito de separar modificadores dessa classe
   def __init__ (self, match, address, modifiers):
@@ -10,8 +37,10 @@ class Dice:
     
     self.amount = int(match[3])
     self.faces = int(match[4])
-    self.results = []
     self.__validate()
+
+    self.natural = DiceResults()
+    self.modified = DiceResults()
 
     self.modifiers = modifiers
     self.__mods_rawlist = modifiers.copy()
@@ -33,9 +62,8 @@ class Dice:
     # obtem resultados da rolagem do dado
     for i in range(self.amount):
       result_i = random.randint(1, self.faces)
-      self.results.append({
-        'natural': result_i,
-        'modified': result_i})
+      self.natural.results.append(result_i)
+      self.modified.results.append(result_i)
       
       # obtem maior resultado
       if result_i > self.hi_result['value']:
@@ -51,7 +79,11 @@ class Dice:
       elif result_i == self.lo_result['value']:
         self.lo_result['ids'].append(i)
     
-    return self.results
+    return self.natural.results
+  
+  @property
+  def results (self):
+    return self.modified
 
   def get_modifier (self):
     if self.modifiers:
@@ -61,38 +93,18 @@ class Dice:
     else:
       self.current_modifier = None
     return self.current_modifier
-
-  def mul_each_result (self, modifier):
-    for i, _ in enumerate(self.results):
-      self.results[i]['modified'] *= modifier.value
-      
-  def div_each_result (self, modifier):
-    for i, _ in enumerate(self.results):
-      self.results[i]['modified'] /= modifier.value
-      
-  def add_each_result (self, modifier):
-    for i, _ in enumerate(self.results):
-      self.results[i]['modified'] += modifier.value
-      
-  def sub_each_result (self, modifier):
-    for i, _ in enumerate(self.results):
-      self.results[i]['modified'] -= modifier.value
       
   def restart_modifiers (self):
     self.modifiers.extend(self.__mods_rawlist)
-    
-  def total_sum (self, result_type:str) -> float:
-    total_sum = sum(float(result[result_type]) for result in self.results)
-    return total_sum
   
   @property
   def hires_moded (self):
     if self.hi_result['ids']:
       result_i = self.hi_result['ids'][0]
-      return self.results[result_i]['modified']
+      return self.modified.results[result_i]
   
   @property
   def lores_moded (self):
     if self.lo_result['ids']:
       result_i = self.lo_result['ids'][0]
-      return self.results[result_i]['modified']
+      return self.modified.results[result_i]
