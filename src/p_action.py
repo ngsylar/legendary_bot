@@ -2,7 +2,7 @@ import re
 import copy
 from arith.expression import Expression
 from dconsts import DefaultConstants as const, TextStructures as txtop, DefaultRegexes as regex
-from auxiliaries import floatstr
+from auxiliaries import floatstr, mincode, maxcode
 
 class PlayerAction:
   # calcula os resultados da rolagem de dados
@@ -119,12 +119,12 @@ class PlayerAction:
       dice_exps.append(dice_exp)
 
     # expressao geral
-    gexpResult = txtop.SBOX +' '+ floatstr(general_exp.result) +' '+ txtop.SBOX + txtop.ARROW_OP
+    gexpResult = mincode(floatstr(general_exp.result)) + txtop.ARROW_OP
     output_gexp = output_gexp.replace('+-', '-').replace(',', '.')
     operators = list(set(re.findall(regex.OPERATOR, output_gexp)))
     for op in operators:
       output_gexp = output_gexp.replace(op, ' '+op+' ')
-    actionResult = txtop.BBOX +'arm\n'+ output_gexp +'\n'+ txtop.BBOX +'\n'
+    actionResult = maxcode('arm', output_gexp) +'\n'
     
     # resultados dos dados
     for d, dice in enumerate(dices):
@@ -132,13 +132,13 @@ class PlayerAction:
 
       # resultados modificados de cada dado
       if dice_has_modifiers:
-        actionResult += txtop.SBOX +' '+ floatstr(dice.modified.results_sum) +' '+ txtop.SBOX + txtop.ARROW_OP
+        actionResult += mincode(floatstr(dice.modified.results_sum)) + txtop.ARROW_OP
         if dice.amount > 1:
           actionResult += str([floatstr(result) for result in dice.modified.results]).replace('\'','') +'  '
         actionResult += 'Modified\n'
       
       # resultados naturais de cada dado
-      actionResult += txtop.SBOX +' '+ floatstr(dice.natural.results_sum) +' '+ txtop.SBOX + txtop.ARROW_OP
+      actionResult += mincode(floatstr(dice.natural.results_sum)) + txtop.ARROW_OP
       if dice.amount > 1:
         actionResult += str([result for result in dice.natural.results]) +'  '
       
@@ -172,7 +172,7 @@ class PlayerAction:
         actionResult += str(dice.lo_result['value']) +' '+ txtop.SBOX + txtop.ARROW_OP + lores_desc[lores_is_critical] +' ('+ str([result_i+1 for result_i in dice.lo_result['ids']])[1:-1] +')d\n'
 
       # expressao com modificadores de cada dado
-      actionResult += txtop.BBOX +'arm\n'+ dice_exps[d] +'\n'+ txtop.BBOX +'\n'
+      actionResult += maxcode('arm', dice_exps[d]) +'\n'
     
     encoded_result = {
       'behavior': action_behavior,
