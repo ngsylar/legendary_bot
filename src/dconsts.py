@@ -42,7 +42,9 @@ class DefaultRegexes:
   # rolagem de dados
   DICE = r'((\d+)[GgLl]?[Dd](\d+))'
   MULTIPLE_DICE = r'(?:(\d+)\#)?' + DICE
-  PLAYER_ACTION = r'[HhSs]?[\(\)\*\/\+\-\#\.,\d]*'+ DICE
+  JUST_MATH = r'^&[HhSs]?[\(\)\*\/\+\-\#\.,\dd]*'
+  DICE_ROLL = r'[HhSs]?[\(\)\*\/\+\-\#\.,\d]*'+ DICE
+  PLAYER_ACTION = r'('+ JUST_MATH +r'|'+ DICE_ROLL +r')'
   MODIFIER = r'('+ OPERATOR + FLOAT_VALUE +r')e'
   MODIFIERS_RAW = r'('+ MODIFIER +r')+'
 

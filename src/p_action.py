@@ -71,6 +71,8 @@ class PlayerAction:
     # separa acao e mensagem embutida pelo jogador
     msgRaw = msg_content.split(' ', 1)
     input_gexp = msgRaw[0].lower()
+    if input_gexp[0] == '&':
+      input_gexp = input_gexp[1:]
 
     # define comportamento da acao
     if input_gexp[0] == 'h':
