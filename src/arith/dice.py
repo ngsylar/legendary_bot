@@ -29,15 +29,14 @@ class DiceResults:
     return float(sum(self.results))
 
 class Dice:
-  # editar: edicao de baixa prioridade, depois ver um jeito de separar modificadores dessa classe
   def __init__ (self, match, address, modifiers):
     self.repetition = match[1]
     self.name = match[2]
     self.address = address
     
     self.amount = int(match[3])
-    self.faces = int(match[4])
-    self.__validate()
+    self.faces = int(match[6])
+    self.__validate(match)
 
     self.natural = DiceResults()
     self.modified = DiceResults()
@@ -45,40 +44,37 @@ class Dice:
     self.modifiers = modifiers
     self.__mods_rawlist = modifiers.copy()
 
-  def __validate (self):
+  def __validate (self, match):
     invalid_amount = (self.amount < 1) or (self.amount > 100)
     invalid_faces = (self.faces < 2) or (self.faces > 1000)
     if invalid_amount or invalid_faces:
       raise
     
+    dice_has_selection = match[4]
+    if dice_has_selection:
+      self.selection = {'type': match[4]}
+      selection_has_amount = match[5]
+      if selection_has_amount:
+        self.selection['amount'] = int(match[5])
+        invalid_selection = (self.selection['amount'] < 0) or (self.selection['amount'] > self.amount)
+        if invalid_selection:
+          raise
+      else:
+        self.selection['amount'] = 1
+      
+      if (match[4] == '!l') or (match[4] == 'nl'):
+        self.selection['type'] = 'h'
+        self.selection['amount'] = self.amount - self.selection['amount']
+      elif (match[4] == '!h') or (match[4] == 'nh'):
+        self.selection['type'] = 'l'
+        self.selection['amount'] = self.amount - self.selection['amount']
+    
   def roll (self):
-    self.hi_result = {
-      'value': -999999,
-      'ids': []}
-    self.lo_result = {
-      'value': 999999,
-      'ids': []}
-
-    # obtem resultados da rolagem do dado
-    for i in range(self.amount):
+    for _ in range(self.amount):
       result_i = random.randint(1, self.faces)
       self.natural.results.append(result_i)
-      self.modified.results.append(result_i)
-      
-      # obtem maior resultado
-      if result_i > self.hi_result['value']:
-        self.hi_result['value'] = result_i
-        self.hi_result['ids'] = [i]
-      elif result_i == self.hi_result['value']:
-        self.hi_result['ids'].append(i)
-      
-      # obtem menor resultado
-      if result_i < self.lo_result['value']:
-        self.lo_result['value'] = result_i
-        self.lo_result['ids'] = [i]
-      elif result_i == self.lo_result['value']:
-        self.lo_result['ids'].append(i)
-    
+    self.natural.results.sort(reverse=True)
+    self.modified.results = self.natural.results.copy()
     return self.natural.results
   
   @property
@@ -98,13 +94,23 @@ class Dice:
     self.modifiers.extend(self.__mods_rawlist)
   
   @property
-  def hires_moded (self):
-    if self.hi_result['ids']:
-      result_i = self.hi_result['ids'][0]
-      return self.modified.results[result_i]
+  def hi_mod_res (self):
+    if self.modified.results:
+      return self.modified.results[0]
   
   @property
-  def lores_moded (self):
-    if self.lo_result['ids']:
-      result_i = self.lo_result['ids'][0]
-      return self.modified.results[result_i]
+  def hi_nat_res (self):
+    if self.natural.results:
+      return self.natural.results[0]
+
+  @property
+  def lo_mod_res (self):
+    if self.modified.results:
+      last_i = len(self.modified.results) - 1
+      return self.modified.results[last_i]
+
+  @property
+  def lo_nat_res (self):
+    if self.natural.results:
+      last_i = len(self.natural.results) - 1
+      return self.natural.results[last_i]
