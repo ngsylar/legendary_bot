@@ -135,14 +135,34 @@ class PlayerAction:
       # resultados modificados de cada dado
       if dice_has_modifiers:
         actionResult += mincode(floatstr(dice.modified.results_sum(dice.selection))) + txtop.ARROW_OP
+        mod_results = []
+        for i, result in enumerate(dice.modified.results):
+          resultStr = floatstr(result)
+          result_is_critical = (dice.natural.results[i] == dice.faces) or (dice.natural.results[i] == 1)
+          if result_is_critical:
+            resultStr = '**'+resultStr+'**'
+          result_was_cut = ((dice.selection['type'] == 'h') and (i >= dice.selection['amount'])) or ((dice.selection['type'] == 'l') and (i < dice.selection['amount']))
+          if result_was_cut:
+            resultStr = '~~'+resultStr+'~~'
+          mod_results.append(resultStr)
         if dice.amount > 1:
-          actionResult += str([floatstr(result) for result in dice.modified.results]).replace('\'','') +'  '
+          actionResult += str(mod_results).replace('\'','')+'  '
         actionResult += 'Modified\n'
       
       # resultados naturais de cada dado
       actionResult += mincode(floatstr(dice.natural.results_sum(dice.selection))) + txtop.ARROW_OP
       if dice.amount > 1:
-        actionResult += str([result for result in dice.natural.results]) +'  '
+        nat_results = []
+        for i, result in enumerate(dice.natural.results):
+          resultStr = str(result)
+          result_is_critical = (result == dice.faces) or (result == 1)
+          if result_is_critical:
+            resultStr = '**'+resultStr+'**'
+          result_was_cut = ((dice.selection['type'] == 'h') and (i >= dice.selection['amount'])) or ((dice.selection['type'] == 'l') and (i < dice.selection['amount']))
+          if result_was_cut:
+            resultStr = '~~'+resultStr+'~~'
+          nat_results.append(resultStr)
+        actionResult += str(nat_results).replace('\'','')+'  '
       
       # valores extremos de cada dado
       hires_is_critical = (dice.hi_nat_res == dice.faces)
