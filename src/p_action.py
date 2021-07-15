@@ -38,7 +38,7 @@ class PlayerAction:
             elif modifier.operator_is_sub():
               dice.modified.results = dice.results - modifier
           
-          innerDice_sum += dice.modified.results_sum
+          innerDice_sum += dice.modified.results_sum(dice.selection)
           dice.restart_modifiers()
           dices.append(dice)
         innerExpression.replace(innerDice.address, innerDice_sum)
@@ -134,13 +134,13 @@ class PlayerAction:
 
       # resultados modificados de cada dado
       if dice_has_modifiers:
-        actionResult += mincode(floatstr(dice.modified.results_sum)) + txtop.ARROW_OP
+        actionResult += mincode(floatstr(dice.modified.results_sum(dice.selection))) + txtop.ARROW_OP
         if dice.amount > 1:
           actionResult += str([floatstr(result) for result in dice.modified.results]).replace('\'','') +'  '
         actionResult += 'Modified\n'
       
       # resultados naturais de cada dado
-      actionResult += mincode(floatstr(dice.natural.results_sum)) + txtop.ARROW_OP
+      actionResult += mincode(floatstr(dice.natural.results_sum(dice.selection))) + txtop.ARROW_OP
       if dice.amount > 1:
         actionResult += str([result for result in dice.natural.results]) +'  '
       

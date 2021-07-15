@@ -24,9 +24,14 @@ class DiceResults:
     results = [result_i-modifier.value for result_i in self.results]
     return results
   
-  @property
-  def results_sum (self):
-    return float(sum(self.results))
+  def results_sum (self, selection):
+    if selection['type'] == 'h':
+      selection_sum = float(sum(self.results[:selection['amount']]))
+    elif selection['type'] == 'l':
+      selection_sum = float(sum(self.results[-selection['amount']:]))
+    else:
+      selection_sum = float(sum(self.results))
+    return selection_sum
 
 class Dice:
   def __init__ (self, match, address, modifiers):
@@ -50,6 +55,7 @@ class Dice:
     if invalid_amount or invalid_faces:
       raise
     
+    self.selection = {'type': None}
     dice_has_selection = match[4]
     if dice_has_selection:
       self.selection = {'type': match[4]}
