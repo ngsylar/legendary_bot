@@ -101,14 +101,6 @@ class PlayerAction:
     action_behavior = decoded_msg['behavior']
     output_gexp = decoded_msg['expression']
     player_quote = decoded_msg['quote']
-    
-    # descricao dos valores extremos
-    hires_desc = {
-      const.NORMAL_RES: 'Highest',
-      const.CRITICAL_RES: '**Critical Strike**'}
-    lores_desc = {
-      const.NORMAL_RES: 'Lowest',
-      const.CRITICAL_RES: '**Critical Failure**'}
 
     # expressão de cada dado
     dice_exps = []
@@ -135,17 +127,17 @@ class PlayerAction:
       # resultados modificados de cada dado
       if dice_has_modifiers:
         actionResult += mincode(floatstr(dice.modified.results_sum(dice.selection))) + txtop.ARROW_OP
-        mod_results = []
-        for i, result in enumerate(dice.modified.results):
-          resultStr = floatstr(result)
-          result_is_critical = (dice.natural.results[i] == dice.faces) or (dice.natural.results[i] == 1)
-          if result_is_critical:
-            resultStr = '**'+resultStr+'**'
-          result_was_cut = ((dice.selection['type'] == 'h') and (i >= dice.selection['amount'])) or ((dice.selection['type'] == 'l') and (i < dice.selection['amount']))
-          if result_was_cut:
-            resultStr = '~~'+resultStr+'~~'
-          mod_results.append(resultStr)
         if dice.amount > 1:
+          mod_results = []
+          for i, result in enumerate(dice.modified.results):
+            resultStr = floatstr(result)
+            result_is_critical = (dice.natural.results[i] == dice.faces) or (dice.natural.results[i] == 1)
+            if result_is_critical:
+              resultStr = '**'+resultStr+'**'
+            result_was_cut = ((dice.selection['type'] == 'h') and (i >= dice.selection['amount'])) or ((dice.selection['type'] == 'l') and (i < dice.selection['amount']))
+            if result_was_cut:
+              resultStr = '~~'+resultStr+'~~'
+            mod_results.append(resultStr)
           actionResult += str(mod_results).replace('\'','')+'  '
         actionResult += 'Modified\n'
       
@@ -167,31 +159,14 @@ class PlayerAction:
       # valores extremos de cada dado
       hires_is_critical = (dice.hi_nat_res == dice.faces)
       lores_is_critical = (dice.lo_nat_res == 1)
-      
-      # valores extremos para rolagem unica
-      if dice.amount == 1:
-        if hires_is_critical:
-          actionResult += hires_desc[const.CRITICAL_RES] +'\n'
-        elif lores_is_critical:
-          actionResult += lores_desc[const.CRITICAL_RES] +'\n'
-        else:
-          actionResult += 'Natural\n'
-      
-      # valores extremos para rolagem multipla
+      if hires_is_critical and lores_is_critical:
+        actionResult += '**Extreme Critical**\n'
+      elif hires_is_critical:
+        actionResult += '**Critical Strike**\n'
+      elif lores_is_critical:
+        actionResult += '**Critical Failure**\n'
       else:
         actionResult += 'Natural\n'
-        
-        # valores maximos
-        actionResult += txtop.SBOX +' '
-        if dice_has_modifiers:
-          actionResult += floatstr(dice.hi_mod_res) +' | '
-        actionResult += str(dice.hi_nat_res) +' '+ txtop.SBOX + txtop.ARROW_OP + hires_desc[hires_is_critical] +'\n'
-
-        # valores minimos
-        actionResult += txtop.SBOX +' '
-        if dice_has_modifiers:
-          actionResult += floatstr(dice.lo_mod_res) +' | '
-        actionResult += str(dice.lo_nat_res) +' '+ txtop.SBOX + txtop.ARROW_OP + lores_desc[lores_is_critical] +'\n'
 
       # expressao com modificadores de cada dado
       actionResult += maxcode('arm', dice_exps[d]) +'\n'
