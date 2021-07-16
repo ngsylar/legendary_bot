@@ -42,7 +42,7 @@ class DefaultRegexes:
   # nome dos dados
   SELEC_TYPE = r'([!Nn]?[HhLl])(\d*)'
   SELEC_OPTION = r'(?:\{'+SELEC_TYPE+r'\}|'+SELEC_TYPE+r')?'
-  DICE = r'((\d+)[Dd](\d+))'+ SELEC_OPTION
+  DICE = r'((\d+)[Dd](\d+)'+SELEC_OPTION+r')'
   MULTIPLE_DICE = r'(?:(\d+)\#)?'+ DICE
 
   # rolagem de dados
