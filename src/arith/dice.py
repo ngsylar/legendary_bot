@@ -25,7 +25,9 @@ class DiceResults:
     return results
   
   def results_sum (self, selection):
-    if selection['type'] == 'h':
+    if selection['type'] and (selection['amount'] == 0):
+      selection_sum = float(0)
+    elif selection['type'] == 'h':
       selection_sum = float(sum(self.results[:selection['amount']]))
     elif selection['type'] == 'l':
       selection_sum = float(sum(self.results[-selection['amount']:]))
@@ -68,7 +70,7 @@ class Dice:
       
       else:
         self.selection['type'] = dice_selection
-        self.selection['amount'] = selection_amount
+        self.selection['amount'] = int(selection_amount)
 
   def __validate (self):
     invalid_amount = (self.amount < 1) or (self.amount > 100)

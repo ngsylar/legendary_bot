@@ -89,7 +89,6 @@ class PlayerAction:
     while selection_match:
       input_gexp = input_gexp[:selection_match.start()+1]+'{'+selection_match[1]+selection_match[2]+'}'+input_gexp[selection_match.end():]
       selection_match = re.search(r'\d'+regex.SELEC_TYPE, input_gexp)
-    print(input_gexp)
     
     # salva mensagem embutida
     if len(msgRaw) > 1:
@@ -141,7 +140,7 @@ class PlayerAction:
             result_is_critical = (dice.natural.results[i] == dice.faces) or (dice.natural.results[i] == 1)
             if result_is_critical:
               resultStr = '**'+resultStr+'**'
-            result_was_cut = ((dice.selection['type'] == 'h') and (i >= dice.selection['amount'])) or ((dice.selection['type'] == 'l') and (i < dice.selection['amount']))
+            result_was_cut = ((dice.selection['type'] == 'h') and (i >= dice.selection['amount'])) or ((dice.selection['type'] == 'l') and (i < (dice.amount - dice.selection['amount'])))
             if result_was_cut:
               resultStr = '~~'+resultStr+'~~'
             mod_results.append(resultStr)
@@ -157,7 +156,7 @@ class PlayerAction:
           result_is_critical = (result == dice.faces) or (result == 1)
           if result_is_critical:
             resultStr = '**'+resultStr+'**'
-          result_was_cut = ((dice.selection['type'] == 'h') and (i >= dice.selection['amount'])) or ((dice.selection['type'] == 'l') and (i < dice.selection['amount']))
+          result_was_cut = ((dice.selection['type'] == 'h') and (i >= dice.selection['amount'])) or ((dice.selection['type'] == 'l') and (i < (dice.amount - dice.selection['amount'])))
           if result_was_cut:
             resultStr = '~~'+resultStr+'~~'
           nat_results.append(resultStr)

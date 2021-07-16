@@ -9,16 +9,14 @@ from p_action import PlayerAction
 # userInput = '8d4+2e'
 
 userInputs = [
-    # '1d8', '4d8', '4d8+2', '4d8+2e',
-    # '4hd8', '4hd8+2e',
-    # '4!ld8', '4nld8',
-    # '4ld8', '4ld8+2e',
-    # '4!hd8', '4nhd8',
-    # '4h2d8', '4nl2d8',
-    # '4l2d8', '4nh2d8',
-    # '4!ld8+2e', '4d2',
-    '4d6{nl}', '4d6nl3']
-    # '2d20+(4e-(1+1d4))e']
+    '1d8', '4d8', '4d8+2', '4d8+2e',
+    '4d8h', '4d8h+2e',
+    '4d8l', '4d8l+2e',
+    '4d8!h', '4d8!h3',
+    '4d6{nl}', '4d6nl3',
+    '4d8h4', '4d8!h4',
+    '4d8l4', '4d8nl4',
+]
 
 for userInput in userInputs:
     action = PlayerAction()
