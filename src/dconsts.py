@@ -40,13 +40,14 @@ class DefaultRegexes:
   ARITH_SUB = FLOAT_VALUE +r'\-'+ FLOAT_VALUE + r'(?!e)'
 
   # nome dos dados
-  RESULT_TYPE = r'(?:([!Nn]?[HhLl])(\d*))?'
-  DICE = r'((\d+)'+ RESULT_TYPE +r'[Dd](\d+))'
-  MULTIPLE_DICE = r'(?:(\d+)\#)?' + DICE
+  SELEC_TYPE = r'([!Nn]?[HhLl])(\d*)'
+  SELEC_OPTION = r'(?:\{'+SELEC_TYPE+r'\}|'+SELEC_TYPE+r')?'
+  DICE = r'((\d+)[Dd](\d+))'+ SELEC_OPTION
+  MULTIPLE_DICE = r'(?:(\d+)\#)?'+ DICE
 
   # rolagem de dados
   JUST_MATH = r'^&[HhSs]?[\(\+\-\d]+'
-  DICE_ROLL = r'[HhSs]?[\(\)\*\/\+\-\#\.,\d]*'+ DICE
+  DICE_ROLL = r'[HhSs]?[\(\)\*\/\+\-\.,\d]*'+ MULTIPLE_DICE
   PLAYER_ACTION = r'('+ JUST_MATH +r'|'+ DICE_ROLL +r')'
   MODIFIER = r'('+ OPERATOR + FLOAT_VALUE +r')e'
   MODIFIERS_RAW = r'('+ MODIFIER +r')+'

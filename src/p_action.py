@@ -83,6 +83,13 @@ class PlayerAction:
       input_gexp = input_gexp[1:]
     else:
       action_behavior = const.PUBLIC_ACTION
+
+    # faz correcoes na mensagem para realizar acao
+    selection_match = re.search(r'\d'+regex.SELEC_TYPE, input_gexp)
+    while selection_match:
+      input_gexp = input_gexp[:selection_match.start()+1]+'{'+selection_match[1]+selection_match[2]+'}'+input_gexp[selection_match.end():]
+      selection_match = re.search(r'\d'+regex.SELEC_TYPE, input_gexp)
+    print(input_gexp)
     
     # salva mensagem embutida
     if len(msgRaw) > 1:

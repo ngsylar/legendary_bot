@@ -40,8 +40,10 @@ class Dice:
     self.address = address
     
     self.amount = int(match[3])
-    self.faces = int(match[6])
-    self.__validate(match)
+    self.faces = int(match[4])
+
+    self.__decode_selection(match)
+    self.__validate()
 
     self.natural = DiceResults()
     self.modified = DiceResults()
@@ -49,31 +51,35 @@ class Dice:
     self.modifiers = modifiers
     self.__mods_rawlist = modifiers.copy()
 
-  def __validate (self, match):
+  def __decode_selection (self, match):
+    self.selection = {'type': None}
+
+    dice_selection = match[5] or match[7]
+    if dice_selection:
+      selection_amount = match[6] or match[8] or '1'
+      
+      if (dice_selection == '!l') or (dice_selection == 'nl'):
+        self.selection['type'] = 'h'
+        self.selection['amount'] = self.amount - int(selection_amount)
+      
+      elif (dice_selection == '!h') or (dice_selection == 'nh'):
+        self.selection['type'] = 'l'
+        self.selection['amount'] = self.amount - int(selection_amount)
+      
+      else:
+        self.selection['type'] = dice_selection
+        self.selection['amount'] = selection_amount
+
+  def __validate (self):
     invalid_amount = (self.amount < 1) or (self.amount > 100)
     invalid_faces = (self.faces < 2) or (self.faces > 1000)
     if invalid_amount or invalid_faces:
       raise
     
-    self.selection = {'type': None}
-    dice_has_selection = match[4]
-    if dice_has_selection:
-      self.selection = {'type': match[4]}
-      selection_has_amount = match[5]
-      if selection_has_amount:
-        self.selection['amount'] = int(match[5])
-        invalid_selection = (self.selection['amount'] < 0) or (self.selection['amount'] > self.amount)
-        if invalid_selection:
-          raise
-      else:
-        self.selection['amount'] = 1
-      
-      if (match[4] == '!l') or (match[4] == 'nl'):
-        self.selection['type'] = 'h'
-        self.selection['amount'] = self.amount - self.selection['amount']
-      elif (match[4] == '!h') or (match[4] == 'nh'):
-        self.selection['type'] = 'l'
-        self.selection['amount'] = self.amount - self.selection['amount']
+    if self.selection['type']:
+      invalid_selection = (self.selection['amount'] < 0) or (self.selection['amount'] > self.amount)
+      if invalid_selection:
+        raise
     
   def roll (self):
     for _ in range(self.amount):
