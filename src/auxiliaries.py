@@ -7,4 +7,4 @@ def mincode (s:str) -> str:
   return txtop.SBOX +' '+ s +' '+ txtop.SBOX
 
 def maxcode (lang:str, s:str) -> str:
-  return txtop.BBOX + lang +'\n'+ s +'\n'+ txtop.BBOX
+  return txtop.BBOX + lang +'\n'+ s + txtop.BBOX
