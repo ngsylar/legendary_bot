@@ -59,7 +59,7 @@ class AutoResponder:
     self.sorry_quote = 'I\'m sorry, I can\'t hear you over the sound of how awesome I am.'
     self.legendary_quote = [
       'believe it or not, you was not always as awesome as you are today.',
-      'you poor thing. Having to grow up in the Insula, with the Palace right there.',
+      'you poor thing. Having to grow up as a Player, with the Master right there.',
       'to succeed you have to stop to be ordinary and be legen — wait for it — dary! Legendary!',
       'when you get sad, just stop being sad and be awesome instead.',
       'if you have a crazy story, I was there. It\'s just a law of the universe.',
@@ -74,7 +74,10 @@ class AutoResponder:
     return msg.channel.send(self.whoami_quote)
 
   def legendary (self, msg):
+    msgAuthorRoles = [role.name.lower() for role in msg.author.roles]
     quote = random.randint(0, len(self.legendary_quote))
+    while ('mastermind' in msgAuthorRoles) and (quote == 1):
+      quote = random.randint(0, len(self.legendary_quote))
     answer = '<@'+str(msg.author.id)+'>, ' + self.legendary_quote[quote]
     return msg.channel.send(answer)
   

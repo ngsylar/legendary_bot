@@ -73,7 +73,7 @@ class UserGuide:
       maxcode('css', '[a]d[r]'),
       maxcode('', '2d20 for example will roll two twenty-sided die'),
 
-      '\nYou can select which results will be in the final sum - where [st] can be replaced with one of the options below, [sa] can be left blank (1 by default) or replaced with an integer value and braces are optional:',
+      '\nYou can select which results will be in the final sum - where [st] can be replaced with one of the options below and [sa] can be left blank (1 by default) or replaced with an integer value; braces are optional:',
       maxcode('css', '[a]d[r]{[st][sa]}'),
       maxcode('asciidoc',
       'h     :: to get the highest [sa] results\n'+
