@@ -57,15 +57,14 @@ class AutoResponder:
     self.challenge_quote = 'challenge accepted!'
     self.sometimes_quote = 'sometimes we search for one thing but discover another.'
     self.sorry_quote = 'I\'m sorry, I can\'t hear you over the sound of how awesome I am.'
-    self.legendary_quote = [
+    self.legendary_quotes = [
       'believe it or not, you was not always as awesome as you are today.',
       'you poor thing. Having to grow up as a Player, with the Master right there.',
       'to succeed you have to stop to be ordinary and be legen — wait for it — dary! Legendary!',
       'when you get sad, just stop being sad and be awesome instead.',
       'if you have a crazy story, I was there. It\'s just a law of the universe.',
       'I believe you and I met for a reason. It\'s like the universe was saying, \"Hey Legendary, there\'s this dude, he\'s pretty cool, but it is your job to make him awesome\".',
-      'without me, it’s just aweso.'
-    ]
+      'without me, it’s just aweso.']
   
   # ----------------------------------------------------------------------------------------------
   # respostas padrao
@@ -75,10 +74,10 @@ class AutoResponder:
 
   def legendary (self, msg):
     msgAuthorRoles = [role.name.lower() for role in msg.author.roles]
-    quote = random.randint(0, len(self.legendary_quote))
+    quote = random.randint(0, len(self.legendary_quotes))
     while ('mastermind' in msgAuthorRoles) and (quote == 1):
-      quote = random.randint(0, len(self.legendary_quote))
-    answer = '<@'+str(msg.author.id)+'>, ' + self.legendary_quote[quote]
+      quote = random.randint(0, len(self.legendary_quotes))
+    answer = '<@'+str(msg.author.id)+'>, ' + self.legendary_quotes[quote]
     return msg.channel.send(answer)
   
   def help (self, msg, cmd, bot, embedBox):

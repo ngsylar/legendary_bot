@@ -78,7 +78,7 @@ class UserGuide:
       maxcode('asciidoc',
       'h     :: to get the highest [sa] results\n'+
       'l     :: to get the lowest [sa] results\n'+
-      'n[st] :: before one of the above causes logical negation'),
+      '![st] :: before one of the above causes logical negation'),
 
       '\nYou can add modifiers to each result of a die immediately after it - where [op] is a mathematical operator whose priority is always the order in which they appear and [v] is the value to modify the die results:',
       maxcode('css', '[op][v]e'),
